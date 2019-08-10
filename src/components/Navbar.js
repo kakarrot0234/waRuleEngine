@@ -8,7 +8,7 @@ class Navbar extends React.Component {
 
     render() {
         return (
-            <nav className="navbar navbar-expand-sm">
+            <nav className="navbar navbar-expand-sm navbar-dark bg-dark">
                 <a href="#" className="navbar-brand">Rule Engine</a>
                 <ul className="navbar-nav nav-tabs">
                     <li className="nav-link">
