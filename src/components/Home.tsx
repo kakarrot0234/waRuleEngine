@@ -13,9 +13,9 @@ export class Home extends React.Component {
                     </div>
                 </div>
                 <div className="row rules-content">
-                    <div className="col-sm-6 criteria-content" onDragOver={e => e.preventDefault()} onDrop={(e) => this.dropHandle(e)}>
+                    <div className="col-sm-6 criterias-content" onDragOver={e => e.preventDefault()} onDrop={(e) => this.dropHandle(e)}>
                         <Criteria Name="Age" Type="numeric"></Criteria>
-                        <Criteria Name="NumberOfCredit" Type="numeric"></Criteria>
+                        <Criteria Name="NumberOfCredit" Type="date"></Criteria>
                     </div>
                     <div className="col-sm-6 rule-editor-content" onDragOver={e => e.preventDefault()} onDrop={(e) => this.dropHandle(e)}>
                     </div>

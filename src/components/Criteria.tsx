@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as $ from 'jquery';
 import WithDraggable from './WithDraggable';
+import uuid = require('uuid');
 
 interface CriteriaProps{
     Name: string;
@@ -8,6 +9,7 @@ interface CriteriaProps{
 }
 
 interface CriteriaState{
+    Id: string;
     Name: string;
     Type: string;
 }
@@ -16,19 +18,20 @@ class Criteria extends React.Component<CriteriaProps, CriteriaState>{
     constructor(props: CriteriaProps){
         super(props);
         this.state={
+            Id: uuid.v1(),
             Name: props.Name,
             Type: props.Type
         };
     }
     componentDidMount(){
-        let aElements = $("div.criteria-content div.dropdown-menu a");
-        aElements.click((e: JQuery.ClickEvent) => {
+        let criterias = $("#" + this.state.Id  + " ~ div.dropdown-menu a");
+        criterias.click((e: JQuery.ClickEvent) => {
             let targetElement = e.target as HTMLElement;
             this.setState({Type: targetElement.innerText});
         });
     }
     render(){
-        return(
+        return(            
             <div className="container-fluid criteria-content">
                 <div className="row">
                     <div className="col-8">
@@ -36,10 +39,10 @@ class Criteria extends React.Component<CriteriaProps, CriteriaState>{
                     </div>
                     <div className="col-4">
                         <div className="dropdown">
-                            <button id="criteriaTypesDropDown" className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" area-expanded="false">
+                            <button id={this.state.Id} className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" area-expanded="false">
                                 {this.state.Type}
                             </button>
-                            <div className="dropdown-menu" aria-labelledby="criteriaTypesDropDown">
+                            <div className="dropdown-menu" aria-labelledby={this.state.Id}>
                                 <a className="dropdown-item" href="#">numeric</a>
                                 <a className="dropdown-item" href="#">alphanumeric</a>
                                 <a className="dropdown-item" href="#">date</a>

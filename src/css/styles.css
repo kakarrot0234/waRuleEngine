@@ -6,9 +6,13 @@
     background-color: antiquewhite;
     min-height: 300px;
 }
-.criteria-content{
+.criterias-content{
     background-color: aqua;
 }
 .rule-editor-content{
     background-color: aquamarine;
+}
+.criteria-content{
+    background-color: rgba(128, 128, 128, 0.534);
+    margin: 2px;
 }
