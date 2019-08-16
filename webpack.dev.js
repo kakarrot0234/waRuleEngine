@@ -1,12 +1,12 @@
 const path = require('path');
-const merge = require('webpack-merge');
-const common = require('./wabpack.common');
+const connect = require('webpack-merge');
+const common = require('./webpack.common');
 
-
-module.exports = merge(common, {
+module.exports = connect(common, {
     mode: 'development',
-    output: {
-        path: path.resolve(__dirname, 'disc'),
+    output:{
+        publicPath: '/',
+        path: path.resolve(__dirname, 'dist'),
         filename: '[name].bundle.js'
     },
     module:{
@@ -16,14 +16,6 @@ module.exports = merge(common, {
                 use:[
                     'style-loader',
                     'css-loader'
-                ]
-            },
-            {
-                test: /\.scss$/,
-                use:[
-                    'style-loader',
-                    'css-loader',
-                    'sass-loader'
                 ]
             }
         ]
