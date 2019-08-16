@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { BrowserRouter, Route, Link } from 'react-router-dom';
 import {Home} from './Home';
 import {About} from './About';

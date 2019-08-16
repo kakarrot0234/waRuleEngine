@@ -1,0 +1,14 @@
+.rule-area-content{
+    background-color: aliceblue;
+    min-height: 200px;
+}
+.rules-content{
+    background-color: antiquewhite;
+    min-height: 300px;
+}
+.criteria-content{
+    background-color: aqua;
+}
+.rule-editor-content{
+    background-color: aquamarine;
+}

@@ -1,9 +1,9 @@
-import React from 'react';
-import uuid from 'uuid';
+import * as React from 'react';
+import * as uuid from 'uuid';
 
-export default function WithDraggable<P, T, SS>(WrappedComponent: React.Component<P, T, SS>) {
-    return class extends React.Component {
-        render() {            
+export default function WithDraggable<T>(WrappedComponent: React.ComponentType<T>) {
+    return class extends React.Component<T> {
+        render() {
             return (
                 <div id={uuid.v1()} draggable={true} onDragStart={e => onDragStartHandle(e)}>
                     <WrappedComponent {...this.props}></WrappedComponent>
@@ -14,5 +14,6 @@ export default function WithDraggable<P, T, SS>(WrappedComponent: React.Componen
 }
 
 function onDragStartHandle(e: React.DragEvent<HTMLDivElement>) {
-    // e.dataTransfer.setData("elementId", e.target.id);
+    let targetElement = e.target as HTMLElement;
+    e.dataTransfer.setData("text", targetElement.id);
 }
