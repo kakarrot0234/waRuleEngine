@@ -14,8 +14,8 @@ export class Home extends React.Component {
                 </div>
                 <div className="row rules-content">
                     <div className="col-sm-6 criterias-content" onDragOver={e => e.preventDefault()} onDrop={(e) => this.dropHandle(e)}>
-                        <Criteria Name="Age" Type="numeric"></Criteria>
-                        <Criteria Name="NumberOfCredit" Type="date"></Criteria>
+                        {/* <Criteria Name="Age" Type="numeric"></Criteria>
+                        <Criteria Name="NumberOfCredit" Type="date"></Criteria> */}
                     </div>
                     <div className="col-sm-6 rule-editor-content" onDragOver={e => e.preventDefault()} onDrop={(e) => this.dropHandle(e)}>
                     </div>
@@ -24,7 +24,7 @@ export class Home extends React.Component {
         );
     }
     dropHandle(e: React.DragEvent){
-        let dropedElementId = e.dataTransfer.getData("text");
+        let dropedElementId = e.dataTransfer.getData("text/plain");
         let dropedElement = document.getElementById(dropedElementId) as Node;
         e.currentTarget.appendChild(dropedElement);
     }
