@@ -13,4 +13,5 @@ export enum EnumRuleOperand {
     Multiply,
     Divide,
     Power,
+    Data
 }

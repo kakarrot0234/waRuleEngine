@@ -1,6 +1,7 @@
 import { IRuleOperand } from "../interfaces/IRuleOperand";
+import { EnumRuleOperand } from "../enums/EnumRuleOperand";
 
-export class OperandEqual implements IRuleOperand<boolean, boolean | number | Date> {
+export class OperandNotEqual implements IRuleOperand<boolean, boolean | number | Date> {
 
     private m_OperandParameters: IRuleOperand<boolean, boolean | number | Date>[] = [];
     public get OperandParameters(): IRuleOperand<boolean, boolean | number | Date>[] {
@@ -20,7 +21,7 @@ export class OperandEqual implements IRuleOperand<boolean, boolean | number | Da
             for (let index = 1; index < this.OperandParameters.length; index++) {
                 const element = this.OperandParameters[index];
                 
-                if (expectedResult !== element.GetResult()) {
+                if (expectedResult === element.GetResult()) {
                     result = false;
                 }
             }
