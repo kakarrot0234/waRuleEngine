@@ -1,30 +1,43 @@
 import { IRuleOperand } from "../interfaces/IRuleOperand";
 
+type TOperand = IRuleOperand<number, number> | undefined;
+
 export class OperandMultiply implements IRuleOperand<number, number> {
 
-    private m_OperandParameters: IRuleOperand<number, number>[] = [];
-    public get OperandParameters(): IRuleOperand<number, number>[] {
-        return this.m_OperandParameters;
+    private m_OperandParameterLeft: TOperand;
+    public get OperandParameterLeft(): TOperand {
+        return this.m_OperandParameterLeft;
     }
-    public set OperandParameters(value: IRuleOperand<number, number>[]) {
-        this.m_OperandParameters = value;
+    public set OperandParameterLeft(value: TOperand) {
+        this.m_OperandParameterLeft = value;
     }
+
+    private m_OperandParameterRight: TOperand;
+    public get OperandParameterRight(): TOperand {
+        return this.m_OperandParameterRight;
+    }
+    public set OperandParameterRight(value: TOperand) {
+        this.m_OperandParameterRight = value;
+    }
+
+    IsValid: () => { IsValid: boolean; Message?: string; } = () => {
+        if (this.OperandParameterLeft == null || this.OperandParameterRight == null) {
+            return { IsValid: false, Message: "There must be 1 parameter for left and right side!" };
+        }
+
+        return { IsValid: true };
+    };
 
     GetResult: () => number = () => {
-        let result = 0;
+        const isValid = this.IsValid();
 
-        if (this.m_OperandParameters.length > 1) {
-            result = this.m_OperandParameters[0].GetResult();
-
-            for (let index = 1; index < this.m_OperandParameters.length; index++) {
-                const element = this.m_OperandParameters[index];
-                result *= element.GetResult();
-            }
-        }
-        else {
-            throw "Hesap parametreleri hatalı.";
+        if (!isValid.IsValid) {
+            throw `To get the results, you should fix the following problems. ${isValid.Message}`
         }
 
+        const leftSideResult = this.OperandParameterLeft!.GetResult();
+        const rightSideResult = this.OperandParameterRight!.GetResult();
+        const result = leftSideResult * rightSideResult;
         return result;
     };
 }

@@ -6,16 +6,21 @@ export class OperandData implements IRuleOperand<boolean | Date | number, undefi
     }
 
     private m_Data: boolean | Date | number;
+    public get Data(): boolean | Date | number {
+        return this.m_Data;
+    }
 
-    private m_OperandParameters: IRuleOperand<boolean | Date | number, undefined>[] = [];
-    public get OperandParameters(): IRuleOperand<boolean | Date | number, undefined>[] {
-        return this.m_OperandParameters;
-    }
-    public set OperandParameters(value: IRuleOperand<boolean | Date | number, undefined>[]) {
-        this.m_OperandParameters = value;
-    }
+    IsValid: () => { IsValid: boolean; Message?: string; } = () => {
+        return { IsValid: true };
+    };
 
     GetResult: () => boolean | Date | number = () => {
-        return this.m_Data;
+        const isValid = this.IsValid();
+
+        if (!isValid.IsValid) {
+            throw `To get the results, you should fix the following problems. ${isValid.Message}`
+        }
+
+        return this.Data;
     };
 }

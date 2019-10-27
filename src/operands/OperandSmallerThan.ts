@@ -1,25 +1,43 @@
 import { IRuleOperand } from "../interfaces/IRuleOperand";
-import { EnumRuleOperand } from "../enums/EnumRuleOperand";
+
+type TOperand = IRuleOperand<boolean, Date | number> | undefined;
 
 export class OperandSmallerThan implements IRuleOperand<boolean, Date | number> {
 
-    private m_OperandParameters: IRuleOperand<boolean, Date | number>[] = [];
-    public get OperandParameters(): IRuleOperand<boolean, Date | number>[] {
-        return this.m_OperandParameters;
+    private m_OperandParameterLeft: TOperand;
+    public get OperandParameterLeft(): TOperand {
+        return this.m_OperandParameterLeft;
     }
-    public set OperandParameters(value: IRuleOperand<boolean, Date | number>[]) {
-        this.m_OperandParameters = value;
+    public set OperandParameterLeft(value: TOperand) {
+        this.m_OperandParameterLeft = value;
     }
+
+    private m_OperandParameterRight: TOperand;
+    public get OperandParameterRight(): TOperand {
+        return this.m_OperandParameterRight;
+    }
+    public set OperandParameterRight(value: TOperand) {
+        this.m_OperandParameterRight = value;
+    }
+
+    IsValid: () => { IsValid: boolean; Message?: string; } = () => {
+        if (this.OperandParameterLeft == null || this.OperandParameterRight == null) {
+            return { IsValid: false, Message: "There must be 1 parameter for left and right side!" };
+        }
+
+        return { IsValid: true };
+    };
 
     GetResult: () => boolean = () => {
-        let result: boolean;
+        const isValid = this.IsValid();
 
-        if (this.m_OperandParameters.length > 1) {
-            result = this.m_OperandParameters[0].GetResult() < this.m_OperandParameters[1].GetResult();
+        if (!isValid.IsValid) {
+            throw `To get the results, you should fix the following problems. ${isValid.Message}`
         }
-        else {
-            throw "Hesap parametreleri hatalı.";
-        }
+
+        const leftSideResult = this.OperandParameterLeft!.GetResult();
+        const rightSideResult = this.OperandParameterRight!.GetResult();
+        const result = leftSideResult < rightSideResult;
 
         return result;
     };

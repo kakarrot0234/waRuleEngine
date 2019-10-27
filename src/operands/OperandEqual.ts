@@ -1,36 +1,43 @@
 import { IRuleOperand } from "../interfaces/IRuleOperand";
 
+type TOperand = IRuleOperand<boolean, boolean | number | Date> | undefined;
+
 export class OperandEqual implements IRuleOperand<boolean, boolean | number | Date> {
 
-    private m_OperandParameters: IRuleOperand<boolean, boolean | number | Date>[] = [];
-    public get OperandParameters(): IRuleOperand<boolean, boolean | number | Date>[] {
-        return this.m_OperandParameters;
+    private m_OperandParameterLeft: TOperand;
+    public get OperandParameterLeft(): TOperand {
+        return this.m_OperandParameterLeft;
     }
-    public set OperandParameters(value: IRuleOperand<boolean, boolean | number | Date>[]) {
-        this.m_OperandParameters = value;
+    public set OperandParameterLeft(value: TOperand) {
+        this.m_OperandParameterLeft = value;
     }
+
+    private m_OperandParameterRight: TOperand;
+    public get OperandParameterRight(): TOperand {
+        return this.m_OperandParameterRight;
+    }
+    public set OperandParameterRight(value: TOperand) {
+        this.m_OperandParameterRight = value;
+    }
+
+    IsValid: () => { IsValid: boolean; Message?: string; } = () => {
+        if (this.OperandParameterLeft == null || this.OperandParameterRight == null) {
+            return { IsValid: false, Message: "There must be 1 parameter for left and right side!" };
+        }
+
+        return { IsValid: true };
+    };
 
     GetResult: () => boolean = () => {
-        let result: boolean;
-        let expectedResult: boolean | number | Date;
+        const isValid = this.IsValid();
 
-        if (this.m_OperandParameters.length > 1) {
-            expectedResult = this.m_OperandParameters[0].GetResult();
-
-            for (let index = 1; index < this.OperandParameters.length; index++) {
-                const element = this.OperandParameters[index];
-                
-                if (expectedResult !== element.GetResult()) {
-                    result = false;
-                }
-            }
-
-            result = true;
-        }
-        else {
-            throw "Hesap parametreleri hatalı.";
+        if (!isValid.IsValid) {
+            throw `To get the results, you should fix the following problems. ${isValid.Message}`
         }
 
+        const leftSideResult = this.OperandParameterLeft!.GetResult();
+        const rightSideResult = this.OperandParameterRight!.GetResult();
+        const result = leftSideResult === rightSideResult;
         return result;
     };
 }
