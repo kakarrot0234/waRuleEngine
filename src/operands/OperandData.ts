@@ -1,12 +1,12 @@
 import { IRuleOperand } from "../interfaces/IRuleOperand";
 
-export class OperandData implements IRuleOperand<boolean | Date | number, undefined> {
-    constructor(data: boolean) {
+export class OperandData<T> implements IRuleOperand<T, T> {
+    constructor(data: T) {
         this.m_Data = data;
     }
 
-    private m_Data: boolean | Date | number;
-    public get Data(): boolean | Date | number {
+    private m_Data: T;
+    public get Data(): T {
         return this.m_Data;
     }
 
@@ -14,7 +14,7 @@ export class OperandData implements IRuleOperand<boolean | Date | number, undefi
         return { IsValid: true };
     };
 
-    GetResult: () => boolean | Date | number = () => {
+    GetResult: () => T = () => {
         const isValid = this.IsValid();
 
         if (!isValid.IsValid) {
