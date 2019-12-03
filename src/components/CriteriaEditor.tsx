@@ -3,7 +3,9 @@ import { IOperandDetail } from "../interfaces/IOperandDetail";
 import { EnumRuleOperand } from "../enums/EnumRuleOperand";
 import { OperandPlus } from "../operands/OperandPlus";
 import { IRuleOperand, } from "../interfaces/IRuleOperand";
-import  "../extensions/extensions";
+import { OperandOptions } from "../operands/OperandOptions";
+import { StringOptions } from "../Helpers/StringOptions";
+import { MathTreeFormuletor } from "./MathTreeFormuletor";
 
 export interface ICriteriaEditorProps { 
     Operands?: IOperandDetail[];
@@ -11,16 +13,14 @@ export interface ICriteriaEditorProps {
 
 export function CriteriaEditor(props: ICriteriaEditorProps) {
     const editor = React.useRef<HTMLTextAreaElement>(null);
-    const trace: any[] = [];
+    const operandTree: IRuleOperand<any, any>[] = [];
+    let tempData: string = "";
     
     const onKeyPressHandle = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (isInputAnOperand(event.key)) {
-            const k: IRuleOperand<number, number>;
-            k.
-        }
+        
     }
     const onChangeHandle = () => {
-
+        MathTreeFormuletor("!A+B*(C+D/(E+F))");
     }
 
     const isInputAnOperand = (newChar: string) => {
