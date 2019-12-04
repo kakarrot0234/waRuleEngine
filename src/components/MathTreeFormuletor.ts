@@ -43,15 +43,15 @@ const operandPrecedences: IOperandDefinition[] = [
 ];
 
 export interface ITreeNode {
-    Data: any;
+    Data: string;
     Operand?: IOperandDefinition;
-    LeftData?: ITreeNode;
-    RightData?: ITreeNode;
+    LeftData?: string;
+    RightData?: string;
 }
 
 export function MathTreeFormuletor(expression: string) {
     let tempId = 1;
-    let wrappedSearchResult: { [key: number]: ITreeNode } = {};
+    let wrappedSearchResult: { Id: string, Node: ITreeNode }[] = [];
     const operandsToLookFor: string[] = [];
     searchForGroup(expression);
     console.log(wrappedSearchResult);
@@ -62,8 +62,9 @@ export function MathTreeFormuletor(expression: string) {
         let regexResult = regex.exec(expressionLast);
 
         while (regexResult) {
-            wrappedSearchResult[tempId++] = { Data: regexResult[1] };
-            expressionLast = expressionLast.replace(regex, `${String.fromCharCode(171)}${tempId}${String.fromCharCode(187)}`);
+            const nodeId = createNodeId();
+            wrappedSearchResult.push({ Id: nodeId.toString(), Node: { Data: regexResult[1] } });
+            expressionLast = expressionLast.replace(regex, `${String.fromCharCode(171)}${nodeId}${String.fromCharCode(187)}`);
             regexResult = regex.exec(expressionLast);
         }
 
@@ -93,16 +94,18 @@ export function MathTreeFormuletor(expression: string) {
 
         createTree(expressionLast);
     }
+    function createNodeId() {
+        return tempId++;
+    }
     function escape(s: string) {
         return s.replace(/[\\^$*+?.()|[\]{}]/g, "\\$&");
     };
-    function createTree(expression: string): ITreeNode {
-        const rootNode: ITreeNode = { Data: expression };
+    function createTree(expression: string) {
         let expressionLast = expression;
         const orderedOperands = operandPrecedences.filter((o) => {
             return operandsToLookFor.indexOf(o.Key) >= 0;
-        }).sort((o) => {
-            return o.Precedence;
+        }).sort((a, b) => {
+            return a.Precedence - b.Precedence;
         });
         orderedOperands.forEach(operandToLookFor => {
             let success: boolean;
@@ -111,16 +114,6 @@ export function MathTreeFormuletor(expression: string) {
                 [ success, expressionLast ] = findTreeNode(operandToLookFor, expressionLast);
             } while (success);
         });
-
-        if (wrappedSearchResult[tempId - 1]) {
-            rootNode.Data = `${String.fromCharCode(171)}${tempId}${String.fromCharCode(187)}`;
-        } else {
-            rootNode.Data = expressionLast;
-        }
-        
-        wrappedSearchResult[tempId] = rootNode;
-        tempId++;
-        return rootNode;
     }
     function findTreeNode(operand: IOperandDefinition, expression: string): [ boolean , string ] {
         let expressionLast = expression;
@@ -133,11 +126,9 @@ export function MathTreeFormuletor(expression: string) {
                 const regexResult = regex.exec(expressionLast);
 
                 if (regexResult) {
-                    wrappedSearchResult[tempId] = { Data: regexResult[0], Operand: operand, };
-                    expressionLast = expressionLast.replace(regex, `${String.fromCharCode(171)}${tempId}${String.fromCharCode(187)}`);
-                    tempId++;
-                    wrappedSearchResult[tempId - 1].LeftData = createTree(regexResult[1]);
-                    wrappedSearchResult[tempId - 1].RightData = createTree(regexResult[2]);
+                    const nodeId = createNodeId();
+                    wrappedSearchResult.push({ Id: nodeId.toString(), Node: { Data: regexResult[0], Operand: operand, LeftData: regexResult[1], RightData: regexResult[2] } });
+                    expressionLast = expressionLast.replace(regex, `${String.fromCharCode(171)}${nodeId}${String.fromCharCode(187)}`);
                     success = true;
                 }
             } else if (operand.ThereIsLeftParameter) {
@@ -146,10 +137,9 @@ export function MathTreeFormuletor(expression: string) {
                 const regexResult = regex.exec(expressionLast);
 
                 if (regexResult) {
-                    wrappedSearchResult[tempId] = { Data: regexResult[0], Operand: operand, };
-                    expressionLast = expressionLast.replace(regex, `${String.fromCharCode(171)}${tempId}${String.fromCharCode(187)}`);
-                    tempId++;
-                    wrappedSearchResult[tempId - 1].LeftData = createTree(regexResult[1]);
+                    const nodeId = createNodeId();
+                    wrappedSearchResult.push({ Id: nodeId.toString(), Node: { Data: regexResult[0], Operand: operand, LeftData: regexResult[1] } });
+                    expressionLast = expressionLast.replace(regex, `${String.fromCharCode(171)}${nodeId}${String.fromCharCode(187)}`);
                     success = true;
                 }
             }
@@ -159,15 +149,12 @@ export function MathTreeFormuletor(expression: string) {
                 const regexResult = regex.exec(expressionLast);
 
                 if (regexResult) {
-                    wrappedSearchResult[tempId] = { Data: regexResult[0], Operand: operand, };
-                    expressionLast = expressionLast.replace(regex, `${String.fromCharCode(171)}${tempId}${String.fromCharCode(187)}`);
-                    tempId++;
-                    wrappedSearchResult[tempId - 1].RightData = createTree(regexResult[1]);
+                    const nodeId = createNodeId();
+                    wrappedSearchResult.push({ Id: nodeId.toString(), Node: { Data: regexResult[0], Operand: operand, RightData: regexResult[1] } });
+                    expressionLast = expressionLast.replace(regex, `${String.fromCharCode(171)}${nodeId}${String.fromCharCode(187)}`);
                     success = true;
                 }
             }
-        } else {
-
         }
 
         return [ success, expressionLast, ];

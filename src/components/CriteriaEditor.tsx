@@ -18,25 +18,12 @@ export function CriteriaEditor(props: ICriteriaEditorProps) {
     
     const onKeyPressHandle = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
         
-    }
-    const onChangeHandle = () => {
-        MathTreeFormuletor("!A+B*C*D");
-    }
-
-    const isInputAnOperand = (newChar: string) => {
-        let result = false;
-
-        if (props.Operands) {
-            result = props.Operands!.filter(o => o.OperandKey === newChar).length > 0;
-        }
-        
-        return result;
-    }
-    
+    }    
 
     return (
         <div>
-            <textarea ref={editor} onKeyPress={onKeyPressHandle} onChange={onChangeHandle}></textarea>
+            <textarea ref={editor} onKeyPress={onKeyPressHandle}></textarea>
+            <button onClick={() => MathTreeFormuletor(editor.current!.value)}>Build</button>
         </div>
-    )
+    );
 };
