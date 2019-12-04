@@ -20,7 +20,7 @@ export function CriteriaEditor(props: ICriteriaEditorProps) {
         
     }
     const onChangeHandle = () => {
-        MathTreeFormuletor("!A+B*(C+D/(E+F))");
+        MathTreeFormuletor("!A+B*C*D");
     }
 
     const isInputAnOperand = (newChar: string) => {
