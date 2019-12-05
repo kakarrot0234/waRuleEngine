@@ -8,7 +8,7 @@ export interface ICriteriaEditorProps {
 };
 
 export function CriteriaEditor(props: ICriteriaEditorProps) {
-    const [mathText, setMathText] = useState<string>("!A+B*C*D");
+    const [mathText, setMathText] = useState<string>("!A+B*C*(D+E+«KB1»)");
 
     return (
         <div>
