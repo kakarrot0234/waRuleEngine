@@ -1,29 +1,19 @@
 import * as React from "react";
 import { IOperandDetail } from "../interfaces/IOperandDetail";
-import { EnumRuleOperand } from "../enums/EnumRuleOperand";
-import { OperandPlus } from "../operands/OperandPlus";
-import { IRuleOperand, } from "../interfaces/IRuleOperand";
-import { OperandOptions } from "../operands/OperandOptions";
-import { StringOptions } from "../Helpers/StringOptions";
 import { MathTreeFormuletor } from "./MathTreeFormuletor";
+import { useState } from 'react';
 
 export interface ICriteriaEditorProps { 
     Operands?: IOperandDetail[];
 };
 
 export function CriteriaEditor(props: ICriteriaEditorProps) {
-    const editor = React.useRef<HTMLTextAreaElement>(null);
-    const operandTree: IRuleOperand<any, any>[] = [];
-    let tempData: string = "";
-    
-    const onKeyPressHandle = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        
-    }    
+    const [mathText, setMathText] = useState<string>("!A+B*C*D");
 
     return (
         <div>
-            <textarea ref={editor} onKeyPress={onKeyPressHandle}></textarea>
-            <button onClick={() => MathTreeFormuletor(editor.current!.value)}>Build</button>
+            <textarea value={mathText} onChange={(o) => setMathText(o.target.value)}></textarea>
+            <button onClick={() => MathTreeFormuletor(mathText)}>Build</button>
         </div>
     );
 };

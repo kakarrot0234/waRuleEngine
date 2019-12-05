@@ -7,13 +7,14 @@ enum OperandDirection {
 interface IOperandDefinition {
     Precedence: number;
     Key: string;
-    Direction: OperandDirection;
+    IsGrouping?: boolean;
+    Direction?: OperandDirection;
     ThereIsLeftParameter: boolean;
     ThereIsRighParameter: boolean;
 }
 
 const operandPrecedences: IOperandDefinition[] = [
-    { Precedence: 1, Key: "()", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
+    { Precedence: 1, Key: "()", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, IsGrouping: true, },
     { Precedence: 2, Key: "!", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: false, ThereIsRighParameter: true, },
     { Precedence: 3, Key: "**", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
     { Precedence: 4, Key: "*", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
@@ -52,12 +53,12 @@ export interface ITreeNode {
 export function MathTreeFormuletor(expression: string) {
     let tempId = 1;
     let wrappedSearchResult: { Id: string, Node: ITreeNode }[] = [];
-    const operandsToLookFor: string[] = [];
-    searchForGroup(expression);
+    const operandsToLookFor = findOperandsToLookFor(expression);
+    createTree(expression);
     console.log(wrappedSearchResult);
 
-    function searchForGroup(expression: string) {
-        const regex = /\(([^()]*)\)/gu;
+    function searchForGroup(operand: IOperandDefinition, expression: string): [ boolean, string ] {
+        const regex = new RegExp(`${escape(operand.Key.substring(0, 1))}([^${operand.Key}]*)${escape(operand.Key.substring(1, 2))}`, "gu");
         let expressionLast = expression;
         let regexResult = regex.exec(expressionLast);
 
@@ -68,31 +69,7 @@ export function MathTreeFormuletor(expression: string) {
             regexResult = regex.exec(expressionLast);
         }
 
-        let regexOperandsStr = "";
-        for (let ii = 0; ii < operandPrecedences.length; ii++) {
-            const operand = operandPrecedences[ii];
-            let operanWithEscapes = "";
-
-            for (let jj = 0; jj < operand.Key.length; jj++) {
-                const element = operand.Key[jj];
-                operanWithEscapes += escape(element);
-            }
-
-            if (ii === operandPrecedences.length - 1) {
-                regexOperandsStr += operanWithEscapes
-            } else {
-                regexOperandsStr += `${operanWithEscapes}|`;
-            }
-        }
-
-        const regexOperands = new RegExp(regexOperandsStr, "gu");
-        let regexOperandsResult = regexOperands.exec(expressionLast);
-        while (regexOperandsResult) {
-            operandsToLookFor.push(regexOperandsResult[0]);
-            regexOperandsResult = regexOperands.exec(expressionLast);
-        }
-
-        createTree(expressionLast);
+        return [ expression !== expressionLast, expressionLast ];
     }
     function createNodeId() {
         return tempId++;
@@ -103,7 +80,7 @@ export function MathTreeFormuletor(expression: string) {
     function createTree(expression: string) {
         let expressionLast = expression;
         const orderedOperands = operandPrecedences.filter((o) => {
-            return operandsToLookFor.indexOf(o.Key) >= 0;
+            return operandsToLookFor.indexOf(o.Key) >= 0 || o.IsGrouping && operandsToLookFor.indexOf(o.Key.substring(0, 1)) >= 0;
         }).sort((a, b) => {
             return a.Precedence - b.Precedence;
         });
@@ -119,7 +96,9 @@ export function MathTreeFormuletor(expression: string) {
         let expressionLast = expression;
         let success = false;
 
-        if (operand.Direction === OperandDirection.LeftToRight) {
+        if (operand.IsGrouping) {
+            [ success, expressionLast ] = searchForGroup(operand, expressionLast);
+        } else {
             if (operand.ThereIsLeftParameter && operand.ThereIsRighParameter) {
                 const regexStr = `(\u{00AB}?\\w+?(?:\\[.*?\\])?\u{00BB}?)${escape(operand.Key)}(\u{00AB}?\\w+?(?:\\[.*?\\])?\u{00BB}?)`;
                 const regex = new RegExp(regexStr, "gu");
@@ -158,6 +137,39 @@ export function MathTreeFormuletor(expression: string) {
         }
 
         return [ success, expressionLast, ];
+    }
+    function findOperandsToLookFor(expression: string) {
+        const operandsToLookFor: string[] = [];
+        let regexOperandsStr = "";
+        
+        for (let ii = 0; ii < operandPrecedences.length; ii++) {
+            const operand = operandPrecedences[ii];
+            let operanWithEscapes = "";
+
+            if (operand.IsGrouping) {
+                operanWithEscapes += escape(operand.Key.substring(0, 1));
+            } else {
+                for (let jj = 0; jj < operand.Key.length; jj++) {
+                    const element = operand.Key[jj];
+                    operanWithEscapes += escape(element);
+                }
+            }
+
+            if (ii === operandPrecedences.length - 1) {
+                regexOperandsStr += operanWithEscapes
+            } else {
+                regexOperandsStr += `${operanWithEscapes}|`;
+            }
+        }
+
+        const regexOperands = new RegExp(regexOperandsStr, "gu");
+        let regexOperandsResult = regexOperands.exec(expression);
+        while (regexOperandsResult) {
+            operandsToLookFor.push(regexOperandsResult[0]);
+            regexOperandsResult = regexOperands.exec(expression);
+        }
+
+        return operandsToLookFor;
     }
 
 }
