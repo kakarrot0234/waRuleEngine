@@ -1,53 +1,7 @@
-enum OperandDirection {
-    LeftToRight,
-    RightToLeft,
-};
-
-interface IOperandDefinition {
-    Precedence: number;
-    Key: string;
-    IsGrouping?: boolean;
-    Direction?: OperandDirection;
-    ThereIsLeftParameter: boolean;
-    ThereIsRighParameter: boolean;
-}
-
-const operandPrecedences: IOperandDefinition[] = [
-    { Precedence: 1, Key: "()", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, IsGrouping: true, },
-    { Precedence: 2, Key: "!", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: false, ThereIsRighParameter: true, },
-    { Precedence: 3, Key: "**", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 4, Key: "*", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 4, Key: "/", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 4, Key: "%", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 5, Key: "+", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 5, Key: "-", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 6, Key: "<", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 6, Key: "<=", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 6, Key: ">", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 6, Key: ">=", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 7, Key: "==", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 7, Key: "!=", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 7, Key: "===", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 7, Key: "!==", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 8, Key: "&", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 9, Key: "^", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 10, Key: "=", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 10, Key: "+=", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 10, Key: "-=", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 10, Key: "**=", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 10, Key: "*=", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 10, Key: "/=", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 10, Key: "%=", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 10, Key: "&=", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, },
-    { Precedence: 10, Key: "^=", Direction: OperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, }
-];
-
-export interface ITreeNode {
-    Data: string;
-    Operand?: IOperandDefinition;
-    LeftData?: string;
-    RightData?: string;
-}
+import { IOperandDefinition } from "../interfaces/IOperandDefinition";
+import { ITreeNode } from "../interfaces/ITreeNode";
+import { OperandDefinitions } from '../data/OperandDefinitions';
+import { CurrentGroupNodes } from '../data/CurrentGroupNodes';
 
 export function MathTreeFormuletor(expression: string) {
     let tempId = 1;
@@ -68,10 +22,7 @@ export function MathTreeFormuletor(expression: string) {
         }
 
         function getNodeDescription(id: string): { Id: string, Node: ITreeNode } | undefined {
-            const nodes: { Id: string, Node: ITreeNode }[] = [
-                { Id: "KB1", Node: { Data: "K1+K2", Operand: operandPrecedences.find((o) => o.Key === "+"), LeftData: "K1", RightData: "K2" }}
-            ];
-            return nodes.find((o) => o.Id === id);
+            return CurrentGroupNodes.find((o) => o.Id === id);
         }
 
         return groupExpressions;
@@ -80,8 +31,8 @@ export function MathTreeFormuletor(expression: string) {
         const operandsToLookFor: string[] = [];
         let regexOperandsStr = "";
         
-        for (let ii = 0; ii < operandPrecedences.length; ii++) {
-            const operand = operandPrecedences[ii];
+        for (let ii = 0; ii < OperandDefinitions.length; ii++) {
+            const operand = OperandDefinitions[ii];
             let operanWithEscapes = "";
 
             if (operand.IsGrouping) {
@@ -93,7 +44,7 @@ export function MathTreeFormuletor(expression: string) {
                 }
             }
 
-            if (ii === operandPrecedences.length - 1) {
+            if (ii === OperandDefinitions.length - 1) {
                 regexOperandsStr += operanWithEscapes
             } else {
                 regexOperandsStr += `${operanWithEscapes}|`;
@@ -111,7 +62,7 @@ export function MathTreeFormuletor(expression: string) {
     }
     function createTree(expression: string) {
         let expressionLast = expression;
-        const orderedOperands = operandPrecedences.filter((o) => {
+        const orderedOperands = OperandDefinitions.filter((o) => {
             return operandsToLookFor.indexOf(o.Key) >= 0 || o.IsGrouping && operandsToLookFor.indexOf(o.Key.substring(0, 1)) >= 0;
         }).sort((a, b) => {
             return a.Precedence - b.Precedence;
