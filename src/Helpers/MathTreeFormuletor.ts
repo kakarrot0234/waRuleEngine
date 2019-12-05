@@ -2,10 +2,15 @@ import { IOperandDefinition } from "../interfaces/IOperandDefinition";
 import { ITreeNode } from "../interfaces/ITreeNode";
 import { OperandDefinitions } from '../data/OperandDefinitions';
 import { CurrentGroupNodes } from '../data/CurrentGroupNodes';
+import { IRuleOperand } from "../interfaces/IRuleOperand";
+import { OperandPlus } from "../operands/OperandPlus";
+import { OperandData } from "../operands/OperandData";
+import { OperandMultiply } from "../operands/OperandMultiply";
+import { OperandDivide } from "../operands/OperandDivide";
 
 export function MathTreeFormuletor(expression: string) {
     let tempId = 1;
-    let wrappedSearchResult: { Id: string, Node: ITreeNode }[] = initializeGroupExpressions(expression);
+    let wrappedSearchResult = initializeGroupExpressions(expression);
     const operandsToLookFor = findOperandsToLookFor(expression);
     createTree(expression);
     console.log(wrappedSearchResult);
@@ -74,6 +79,7 @@ export function MathTreeFormuletor(expression: string) {
                 [ success, expressionLast ] = findTreeNode(operandToLookFor, expressionLast);
             } while (success);
         });
+
     }
     function findTreeNode(operand: IOperandDefinition, expression: string): [ boolean , string ] {
         let expressionLast = expression;
@@ -141,5 +147,53 @@ export function MathTreeFormuletor(expression: string) {
     function escape(s: string) {
         return s.replace(/[\\^$*+?.()|[\]{}]/g, "\\$&");
     };
+    function convertTreeToRuleOperands() {
+        
+    }
+    function convertTreeNodeToRuleOperand(node: ITreeNode) {
+        let ruleOperand: IRuleOperand<any, any> | undefined;
 
+        if (node.Operand) {
+            ruleOperand = createRuleOperand(node.Operand);
+        }
+        else {
+            ruleOperand = createRuleOperandData(node.Data);
+        }
+
+        if (node.LeftData && ruleOperand) {
+            ruleOperand.OperandParameterLeft = createRuleOperandData(node.LeftData);
+        }
+        if (node.RightData && ruleOperand) {
+            ruleOperand.OperandParameterRight = createRuleOperandData(node.RightData);
+        }
+
+        return ruleOperand;
+    }
+    function createRuleOperand(operandDefinition: IOperandDefinition) {
+        switch (operandDefinition.Key) {
+            case "+":
+                return new OperandPlus();
+            case "*":
+                return new OperandMultiply();
+            case "/":
+                return new OperandDivide();
+            default:
+                break;
+        }
+    }
+    function createRuleOperandData(data: any) {
+        const typeofData = typeof data;
+
+        if (typeofData === "string") {
+            const regex = /«(.*?)»/gu;
+            let regexResult = regex.exec(data);
+
+            if (regexResult) {
+                const groupNode = wrappedSearchResult.find((o) => o.Id === regexResult![1]);
+                return convertTreeNodeToRuleOperand(groupNode!.Node);
+            }
+        }
+
+        return new OperandData<typeof data>(data);
+    }
 }
