@@ -64,17 +64,13 @@ export function MathTreeFormuletor(expression: string) {
             return a.Precedence - b.Precedence;
         });
 
-        if (operandsToLookFor.length > 0) {
-            orderedOperands.forEach(operandToLookFor => {
-                let success: boolean;
+        orderedOperands.forEach(operandToLookFor => {
+            let success: boolean;
 
-                do {
-                    [success, expressionLast] = findTreeNode(operandToLookFor, expressionLast);
-                } while (success);
-            });
-        } else {
-            initializeGroupExpressions(expressionLast);
-        }
+            do {
+                [success, expressionLast] = findTreeNode(operandToLookFor, expressionLast);
+            } while (success);
+        });
     }
     function findTreeNode(operand: IOperandDefinition, expression: string): [boolean, string] {
         let expressionLast = expression;
@@ -91,8 +87,6 @@ export function MathTreeFormuletor(expression: string) {
                 if (regexResult) {
                     const nodeId = createNodeId();
                     wrappedSearchResult.push({ Id: nodeId.toString(), Node: { Data: regexResult[0], Operand: operand, LeftData: regexResult[1], RightData: regexResult[2] } });
-                    initializeGroupExpressions(regexResult[1]);
-                    initializeGroupExpressions(regexResult[2]);
                     expressionLast = expressionLast.replace(regex, `«${nodeId}»`);
                     success = true;
                 }
@@ -104,7 +98,6 @@ export function MathTreeFormuletor(expression: string) {
                 if (regexResult) {
                     const nodeId = createNodeId();
                     wrappedSearchResult.push({ Id: nodeId.toString(), Node: { Data: regexResult[0], Operand: operand, LeftData: regexResult[1] } });
-                    initializeGroupExpressions(regexResult[1]);
                     expressionLast = expressionLast.replace(regex, `«${nodeId}»`);
                     success = true;
                 }
@@ -117,7 +110,6 @@ export function MathTreeFormuletor(expression: string) {
                 if (regexResult) {
                     const nodeId = createNodeId();
                     wrappedSearchResult.push({ Id: nodeId.toString(), Node: { Data: regexResult[0], Operand: operand, RightData: regexResult[1] } });
-                    initializeGroupExpressions(regexResult[1]);
                     expressionLast = expressionLast.replace(regex, `«${nodeId}»`);
                     success = true;
                 }
@@ -146,50 +138,31 @@ export function MathTreeFormuletor(expression: string) {
     function escape(s: string) {
         return s.replace(/[\\^$*+?.()|[\]{}]/g, "\\$&");
     }
-    function initializeGroupExpressions(expression: string) {
-        const regex = /^«(.*?)»$/gu;
-        let regexResult = regex.exec(expression);
-
-        while (regexResult) {
-            const node = getNodeDescription(regexResult[1]);
-
-            if (node != null && node.Node != null) {
-                if (wrappedSearchResult.length > 0) {
-                    const lastItem = wrappedSearchResult.pop();
-                    wrappedSearchResult.push({ Id: regexResult[1], Node: node.Node }, lastItem!);
-
-                } else {
-                    wrappedSearchResult.push({ Id: regexResult[1], Node: node.Node });
-                }
-
-            }
-
-            regexResult = regex.exec(expression);
-        }
-
-        function getNodeDescription(id: string): { Id: string, Node: ITreeNode } | undefined {
-            return CurrentGroupNodes.find((o) => o.Id === id);
-        }
-    }
     function convertTreeToRuleOperands() {
-        const ruleOperand = convertTreeNodeToRuleOperand(wrappedSearchResult[wrappedSearchResult.length - 1].Node);
+        console.log(wrappedSearchResult);
+        const ruleOperand = convertTreeNodeToRuleOperand(wrappedSearchResult[wrappedSearchResult.length - 1]);
         return ruleOperand;
     }
-    function convertTreeNodeToRuleOperand(node: ITreeNode) {
+    function convertTreeNodeToRuleOperand(nodeDef: { Id: string, Node: ITreeNode, IsGrouping?: boolean }): IRuleOperand<any, any> | undefined {
         let ruleOperand: IRuleOperand<any, any> | undefined;
 
-        if (node.Operand) {
-            ruleOperand = createRuleOperand(node.Operand);
-        }
-        else {
-            ruleOperand = createRuleOperandData(node.Data);
-        }
-
-        if (node.LeftData && ruleOperand) {
-            ruleOperand.OperandParameterLeft = createRuleOperandData(node.LeftData);
-        }
-        if (node.RightData && ruleOperand) {
-            ruleOperand.OperandParameterRight = createRuleOperandData(node.RightData);
+        if (nodeDef.IsGrouping != null && nodeDef.IsGrouping) {
+            ruleOperand = MathTreeFormuletor(nodeDef.Node.Data);
+        } else {
+            if (nodeDef.Node && nodeDef.Node.Operand) {
+                if (nodeDef.Node.Operand) {
+                    ruleOperand = createRuleOperand(nodeDef.Node.Operand);
+                } else {
+                    ruleOperand = createRuleOperandData(nodeDef.Node.Data);
+                }
+    
+                if (nodeDef.Node.LeftData && ruleOperand) {
+                    ruleOperand.OperandParameterLeft = createRuleOperandData(nodeDef.Node.LeftData);
+                }
+                if (nodeDef.Node.RightData && ruleOperand) {
+                    ruleOperand.OperandParameterRight = createRuleOperandData(nodeDef.Node.RightData);
+                }
+            }
         }
 
         return ruleOperand;
@@ -230,13 +203,18 @@ export function MathTreeFormuletor(expression: string) {
             let regexResult = regex.exec(data);
 
             if (regexResult) {
-                const groupNode = wrappedSearchResult.find((o) => o.Id === regexResult![1]);
+                let groupNode = wrappedSearchResult.find((o) => o.Id === regexResult![1]);
 
-                if (groupNode != null && groupNode.IsGrouping) {
-                    return MathTreeFormuletor(groupNode!.Node.Data);
+                if (groupNode == null) {
+                    groupNode = CurrentGroupNodes.find((o) => o.Id === regexResult![1]);
                 }
 
-                return convertTreeNodeToRuleOperand(groupNode!.Node);
+                if (groupNode != null && groupNode.IsGrouping) {
+                    const l = MathTreeFormuletor(groupNode!.Node.Data);
+                    return l;
+                }
+
+                return convertTreeNodeToRuleOperand(groupNode!);
             }
         }
 

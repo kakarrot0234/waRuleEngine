@@ -42,7 +42,7 @@ export class OperandDivide implements IRuleOperand<number, number> {
             throw "Right side of the parameter must be different from 0 (Zero)!"
         }
 
-        const result = leftSideResult * rightSideResult;
+        const result = leftSideResult / rightSideResult;
         return result;
     };
 }
