@@ -13,7 +13,13 @@ export function CriteriaEditor(props: ICriteriaEditorProps) {
     return (
         <div>
             <textarea value={mathText} onChange={(o) => setMathText(o.target.value)}></textarea>
-            <button onClick={() => MathTreeFormuletor(mathText)}>Build</button>
+            <button onClick={() => {
+                    const rootRuleOperand = MathTreeFormuletor(mathText);
+                    console.log(MathTreeFormuletor(mathText));
+                    const result = rootRuleOperand!.GetResult();
+                    console.log(result);
+                }
+            }>Build</button>
         </div>
     );
 };
