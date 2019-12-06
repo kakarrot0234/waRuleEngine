@@ -6,4 +6,5 @@ export interface IOperandDefinition {
     Direction?: EnumOperandDirection;
     ThereIsLeftParameter: boolean;
     ThereIsRighParameter: boolean;
+    Description: string;
 }

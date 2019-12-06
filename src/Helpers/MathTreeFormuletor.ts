@@ -8,6 +8,13 @@ import { OperandData } from "../operands/OperandData";
 import { OperandMultiply } from "../operands/OperandMultiply";
 import { OperandDivide } from "../operands/OperandDivide";
 import { OperandNot } from '../operands/OperandNot';
+import { OperandBiggerThan } from '../operands/OperandBiggerThan';
+import { OperandEqualOrBiggerThan } from '../operands/OperandEqualOrBiggerThan';
+import { OperandSmallerThan } from '../operands/OperandSmallerThan';
+import { OperandEqualOrSmallerThan } from '../operands/OperandEqualOrSmallerThan';
+import { OperandMinus } from '../operands/OperandMinus';
+import { OperandEqual } from '../operands/OperandEqual';
+import { OperandNotEqual } from '../operands/OperandNotEqual';
 
 export function MathTreeFormuletor(expression: string) {
     let tempId = 1;
@@ -15,11 +22,11 @@ export function MathTreeFormuletor(expression: string) {
     const operandsToLookFor = findOperandsToLookFor(expression);
     createTree(expression);
     return convertTreeToRuleOperands();
-    
+
     function findOperandsToLookFor(expression: string) {
         const operandsToLookFor: string[] = [];
         let regexOperandsStr = "";
-        
+
         for (let ii = 0; ii < OperandDefinitions.length; ii++) {
             const operand = OperandDefinitions[ii];
             let operanWithEscapes = "";
@@ -60,21 +67,21 @@ export function MathTreeFormuletor(expression: string) {
         if (operandsToLookFor.length > 0) {
             orderedOperands.forEach(operandToLookFor => {
                 let success: boolean;
-    
+
                 do {
-                    [ success, expressionLast ] = findTreeNode(operandToLookFor, expressionLast);
+                    [success, expressionLast] = findTreeNode(operandToLookFor, expressionLast);
                 } while (success);
             });
         } else {
             initializeGroupExpressions(expressionLast);
         }
     }
-    function findTreeNode(operand: IOperandDefinition, expression: string): [ boolean , string ] {
+    function findTreeNode(operand: IOperandDefinition, expression: string): [boolean, string] {
         let expressionLast = expression;
         let success = false;
 
         if (operand.IsGrouping) {
-            [ success, expressionLast ] = searchForGroup(operand, expressionLast);
+            [success, expressionLast] = searchForGroup(operand, expressionLast);
         } else {
             if (operand.ThereIsLeftParameter && operand.ThereIsRighParameter) {
                 const regexStr = `(«?\\w+(?:\\[.*?\\])?»?)${escape(operand.Key)}(«?\\w+(?:\\[.*?\\])?»?)`;
@@ -117,9 +124,9 @@ export function MathTreeFormuletor(expression: string) {
             }
         }
 
-        return [ success, expressionLast, ];
+        return [success, expressionLast,];
     }
-    function searchForGroup(operand: IOperandDefinition, expression: string): [ boolean, string ] {
+    function searchForGroup(operand: IOperandDefinition, expression: string): [boolean, string] {
         const regex = new RegExp(`${escape(operand.Key.substring(0, 1))}([^${operand.Key}]*)${escape(operand.Key.substring(1, 2))}`, "gu");
         let expressionLast = expression;
         let regexResult = regex.exec(expressionLast);
@@ -131,7 +138,7 @@ export function MathTreeFormuletor(expression: string) {
             regexResult = regex.exec(expressionLast);
         }
 
-        return [ expression !== expressionLast, expressionLast ];
+        return [expression !== expressionLast, expressionLast];
     }
     function createNodeId() {
         return tempId++;
@@ -154,9 +161,9 @@ export function MathTreeFormuletor(expression: string) {
                 } else {
                     wrappedSearchResult.push({ Id: regexResult[1], Node: node.Node });
                 }
-                
+
             }
-            
+
             regexResult = regex.exec(expression);
         }
 
@@ -189,14 +196,28 @@ export function MathTreeFormuletor(expression: string) {
     }
     function createRuleOperand(operandDefinition: IOperandDefinition) {
         switch (operandDefinition.Key) {
-            case "+":
-                return new OperandPlus();
+            case ">":
+                return new OperandBiggerThan();
+            case ">=":
+                return new OperandEqualOrBiggerThan();
+            case "<":
+                return new OperandSmallerThan();
+            case "<=":
+                return new OperandEqualOrSmallerThan();
+            case "!":
+                return new OperandNot();
+            case "==":
+                return new OperandEqual();
+            case "!=":
+                return new OperandNotEqual();
             case "*":
                 return new OperandMultiply();
             case "/":
                 return new OperandDivide();
-                case "!":
-                    return new OperandNot();
+            case "+":
+                return new OperandPlus();
+            case "-":
+                return new OperandMinus();
             default:
                 break;
         }
