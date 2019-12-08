@@ -2,19 +2,19 @@ import { IOperandDefinition } from "../interfaces/IOperandDefinition";
 import { ITreeNode } from "../interfaces/ITreeNode";
 import { OperandDefinitions } from '../data/OperandDefinitions';
 import { CurrentGroupNodes } from '../data/CurrentGroupNodes';
-import { IRuleOperand } from "../interfaces/IRuleOperand";
-import { OperandPlus } from "../operands/OperandPlus";
-import { OperandData } from "../operands/OperandData";
-import { OperandMultiply } from "../operands/OperandMultiply";
-import { OperandDivide } from "../operands/OperandDivide";
-import { OperandNot } from '../operands/OperandNot';
-import { OperandBiggerThan } from '../operands/OperandBiggerThan';
-import { OperandEqualOrBiggerThan } from '../operands/OperandEqualOrBiggerThan';
-import { OperandSmallerThan } from '../operands/OperandSmallerThan';
-import { OperandEqualOrSmallerThan } from '../operands/OperandEqualOrSmallerThan';
-import { OperandMinus } from '../operands/OperandMinus';
-import { OperandEqual } from '../operands/OperandEqual';
-import { OperandNotEqual } from '../operands/OperandNotEqual';
+import { IRuleOperand } from "../interfaces/RuleNode";
+import { RuleNodePlus } from "../operands/RuleNodePlus";
+import { RuleNodeData } from "../operands/RuleNodeData";
+import { RuleNodeMultiply } from "../operands/RuleNodeMultiply";
+import { RuleNodeDivide } from "../operands/RuleNodeDivide";
+import { RuleNodeNot } from '../operands/RuleNodeNot';
+import { RuleNodeBiggerThan } from '../operands/RuleNodeBiggerThan';
+import { RuleNodeEqualOrBiggerThan } from '../operands/RuleNodeEqualOrBiggerThan';
+import { RuleNodeSmallerThan } from '../operands/RuleNodeSmallerThan';
+import { RuleNodeEqualOrSmallerThan } from '../operands/RuleNodeEqualOrSmallerThan';
+import { RuleNodeMinus } from '../operands/RuleNodeMinus';
+import { RuleNodeEqual } from '../operands/RuleNodeEqual';
+import { RuleNodeNotEqual } from '../operands/RuleNodeNotEqual';
 
 export function MathTreeFormuletor(expression: string) {
     let tempId = 1;
@@ -170,27 +170,27 @@ export function MathTreeFormuletor(expression: string) {
     function createRuleOperand(operandDefinition: IOperandDefinition) {
         switch (operandDefinition.Key) {
             case ">":
-                return new OperandBiggerThan();
+                return new RuleNodeBiggerThan();
             case ">=":
-                return new OperandEqualOrBiggerThan();
+                return new RuleNodeEqualOrBiggerThan();
             case "<":
-                return new OperandSmallerThan();
+                return new RuleNodeSmallerThan();
             case "<=":
-                return new OperandEqualOrSmallerThan();
+                return new RuleNodeEqualOrSmallerThan();
             case "!":
-                return new OperandNot();
+                return new RuleNodeNot();
             case "==":
-                return new OperandEqual();
+                return new RuleNodeEqual();
             case "!=":
-                return new OperandNotEqual();
+                return new RuleNodeNotEqual();
             case "*":
-                return new OperandMultiply();
+                return new RuleNodeMultiply();
             case "/":
-                return new OperandDivide();
+                return new RuleNodeDivide();
             case "+":
-                return new OperandPlus();
+                return new RuleNodePlus();
             case "-":
-                return new OperandMinus();
+                return new RuleNodeMinus();
             default:
                 break;
         }
@@ -218,6 +218,6 @@ export function MathTreeFormuletor(expression: string) {
             }
         }
 
-        return new OperandData<typeof data>(data);
+        return new RuleNodeData<typeof data>(data);
     }
 }

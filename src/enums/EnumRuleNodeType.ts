@@ -1,4 +1,4 @@
-export enum EnumRuleOperand {
+export enum EnumRuleNodeType {
     And,
     Or,
     Equal,

@@ -1,16 +1,16 @@
 import * as React from 'react';
 import { CriteriaEditor } from './CriteriaEditor';
 import { IOperandDetail } from '../interfaces/IOperandDetail';
-import { EnumRuleOperand } from '../enums/EnumRuleOperand';
+import { EnumRuleNodeType } from '../enums/EnumRuleNodeType';
 
 export interface IHomeProps { };
 
 export function Home(props: IHomeProps) {
     const operands: IOperandDetail[] = [
-        { OperandEnum: EnumRuleOperand.Plus, OperandKey: "+", OperandName: "Plus"},
-        { OperandEnum: EnumRuleOperand.Minus, OperandKey: "-", OperandName: "Minus"},
-        { OperandEnum: EnumRuleOperand.Multiply, OperandKey: "*", OperandName: "Multiply"},
-        { OperandEnum: EnumRuleOperand.Divide, OperandKey: "/", OperandName: "Divide"},
+        { OperandEnum: EnumRuleNodeType.Plus, OperandKey: "+", OperandName: "Plus"},
+        { OperandEnum: EnumRuleNodeType.Minus, OperandKey: "-", OperandName: "Minus"},
+        { OperandEnum: EnumRuleNodeType.Multiply, OperandKey: "*", OperandName: "Multiply"},
+        { OperandEnum: EnumRuleNodeType.Divide, OperandKey: "/", OperandName: "Divide"},
     ];
     const operandMetinleri = operands.map(o => {
         return (
