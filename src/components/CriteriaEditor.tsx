@@ -1,23 +1,30 @@
 import * as React from "react";
-import { IOperandDetail } from "../interfaces/IOperandDetail";
-import { MathTreeFormuletor } from "../helpers/MathTreeFormuletor";
+import { MathTreeFormuletor } from '../helpers/MathTreeFormuletor';
 import { useState } from 'react';
+import { EnumRuleNodeResultFoundCd } from "../enums/EnumRuleNodeResultFoundCd";
 
 export interface ICriteriaEditorProps { 
-    Operands?: IOperandDetail[];
 };
 
 export function CriteriaEditor(props: ICriteriaEditorProps) {
-    const [mathText, setMathText] = useState<string>("!«A»+2*3*(4+50/«KB1»)");
+    const [mathText, setMathText] = useState<string>("!«A»");
 
     return (
         <div>
             <textarea value={mathText} onChange={(o) => setMathText(o.target.value)}></textarea>
-            <button onClick={() => {
-                    const rootRuleOperand = MathTreeFormuletor(mathText);
-                    console.log(MathTreeFormuletor(mathText));
-                    const result = rootRuleOperand!.GetResult();
-                    console.log(result);
+            <button onClick={async () => {
+                    const rootRuleOperand = new MathTreeFormuletor().ConvertFormuleToTree(mathText);
+                    console.log(rootRuleOperand);
+
+                    if (rootRuleOperand != null) {
+                        await rootRuleOperand.FindResultData();
+
+                        if (rootRuleOperand.ResultFoundCd === EnumRuleNodeResultFoundCd.Found) {
+                            console.log(rootRuleOperand.ResultData);
+                        } else {
+                            console.log(rootRuleOperand.Error);
+                        }
+                    }
                 }
             }>Build</button>
         </div>

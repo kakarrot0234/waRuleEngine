@@ -68,5 +68,23 @@ export abstract class RuleNode {
             throw new Error(`Type of Result Data of Node that its id number is '${ruleNode.NodeId}' must be of type '${typeOfResultData}'`);
         }
     }
+    protected ValidateTypeOfResultDataIsAcceptable(listOfAcceptedTypes: string[], ruleNode: RuleNode) {
+        const typeOfResultData = typeof ruleNode.ResultData;
+
+        if (!listOfAcceptedTypes.includes(typeOfResultData)) {
+            let acceptedTypesStr = "";
+
+            for (let index = 0; index < listOfAcceptedTypes.length; index++) {
+                const acceptedType = listOfAcceptedTypes[index];
+                
+                if (index === listOfAcceptedTypes.length - 1) {
+                    acceptedTypesStr += acceptedType;
+                } else {
+                    acceptedTypesStr += `${acceptedType}, `;
+                }
+            }
+            throw new Error(`Type of Result Data of Node that its id number is '${ruleNode.NodeId}' must be one of type from: '${acceptedTypesStr}'`);
+        }
+    }
 
 }

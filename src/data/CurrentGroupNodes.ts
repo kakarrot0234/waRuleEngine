@@ -1,7 +1,13 @@
-import { ITreeNode } from '../interfaces/ITreeNode';
+import { IBinaryTreeNode } from '../interfaces/IBinaryTreeNode';
 import { OperandDefinitions } from './OperandDefinitions';
 
-export const CurrentGroupNodes: { Id: string, Node: ITreeNode }[] = [
-    { Id: "KB1", Node: { Data: "2*5", Operand: OperandDefinitions.find((o) => o.Key === "*"), LeftData: 2, RightData: 5 }, },
-    { Id: "A", Node: { Data: true, }, },
+const currentGroupNodes: IBinaryTreeNode[] = [
+    { Id: "KB1", Data: "2*5", Operand: OperandDefinitions.find((o) => o.Key === "*"), LeftData: 2, RightData: 5 },
+    { Id: "A", Data: true, },
 ];
+
+export class CurrentGroupNodes {
+    static FindCurrentGroupNode(id: string) {
+        return currentGroupNodes.find(o => o.Id === id);
+    }
+}

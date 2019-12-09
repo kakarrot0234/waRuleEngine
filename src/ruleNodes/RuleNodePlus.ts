@@ -27,7 +27,7 @@ export class RuleNodePlus extends RuleNode {
                 await this.NodeParameters[0].FindResultData(commonAccessPool);
                 this.ValidateFindingResultIsSuccess(this.NodeParameters[0]);
                 this.ValidatePrecenceOfResultData(this.NodeParameters[0]);
-                this.ValidateTypeOfResultDataIsNumber(this.NodeParameters[0]);
+                this.ValidateTypeOfResultDataIsAcceptable([ "number", "string" ], this.NodeParameters[0]);
                 let result = this.NodeParameters[0].ResultData;
 
                 for (let index = 1; index < this.NodeParameters.length; index++) {
@@ -35,7 +35,7 @@ export class RuleNodePlus extends RuleNode {
                     await ruleNode.FindResultData(commonAccessPool);
                     this.ValidateFindingResultIsSuccess(ruleNode);
                     this.ValidatePrecenceOfResultData(ruleNode);
-                    this.ValidateTypeOfResultDataIsNumber(ruleNode);
+                    this.ValidateTypeOfResultDataIsAcceptable([ "number", "string" ], ruleNode);
                     result += ruleNode.ResultData;
                 }
 

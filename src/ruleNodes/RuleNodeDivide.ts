@@ -1,6 +1,5 @@
 import { RuleNode } from "../interfaces/RuleNode";
 import { IIsValidResult } from "../interfaces/IIsValidResult";
-import { EnumRuleNodeResultFoundCd } from "../enums/EnumRuleNodeResultFoundCd";
 import { ICommonAccessPool } from "../interfaces/ICommonAccessPool";
 
 export class RuleNodeDivide extends RuleNode {
@@ -37,7 +36,7 @@ export class RuleNodeDivide extends RuleNode {
                 this.ValidatePrecenceOfResultData(this.NodeParameters[1]);
                 this.ValidateTypeOfResultDataIsNumber(this.NodeParameters[1]);
 
-                if (this.NodeParameters[1].ResultData !== 0) {
+                if (this.NodeParameters[1].ResultData === 0) {
                     throw new Error(`Result data of the Node that its id number is '${this.NodeParameters[1].NodeId}' is 0. The divider connot be 0.!`);
                 }
 
@@ -50,7 +49,7 @@ export class RuleNodeDivide extends RuleNode {
                     this.ValidatePrecenceOfResultData(nodeParameter);
                     this.ValidateTypeOfResultDataIsNumber(nodeParameter);
 
-                    if (nodeParameter.ResultData !== 0) {
+                    if (nodeParameter.ResultData === 0) {
                         throw Error(`Result data of the Node that its id number is '${nodeParameter.NodeId}' is 0. The divider connot be 0.!`);
                     }
 

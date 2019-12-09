@@ -1,11 +1,13 @@
 import { EnumRuleNodeType } from "../enums/EnumRuleNodeType";
-import { RuleNodePlus } from "./RuleNodePlus";
+import { RuleNodePlus } from "../ruleNodes/RuleNodePlus";
 import { RuleNode } from "../interfaces/RuleNode";
-import { RuleNodeData } from "./RuleNodeData";
+import { RuleNodeData } from "../ruleNodes/RuleNodeData";
 import uuid = require("uuid");
-import { RuleNodeMinus } from "./RuleNodeMinus";
-import { StringOptions } from "../Helpers/StringOptions";
-import { RuleNodeMultiply } from "./RuleNodeMultiply";
+import { RuleNodeMinus } from "../ruleNodes/RuleNodeMinus";
+import { StringOptions } from "./StringOptions";
+import { RuleNodeMultiply } from "../ruleNodes/RuleNodeMultiply";
+import { RuleNodeNot } from '../ruleNodes/RuleNodeNot';
+import { RuleNodeDivide } from '../ruleNodes/RuleNodeDivide';
 
 export class RuleNodeOptions {
     static CreateRuleNode(enumRuleNodeType: EnumRuleNodeType, ruleNodeId?: string, data?: any): RuleNode | undefined {
@@ -24,6 +26,10 @@ export class RuleNodeOptions {
                 return new RuleNodeMinus(ruleNodeId!);
             case EnumRuleNodeType.Multiply:
                 return new RuleNodeMultiply(ruleNodeId!);
+            case EnumRuleNodeType.Not:
+                return new RuleNodeNot(ruleNodeId!);
+            case EnumRuleNodeType.Divide:
+                return new RuleNodeDivide(ruleNodeId!);
             case EnumRuleNodeType.Data:
                 return new RuleNodeData(ruleNodeIdTemp, data);
             default:
