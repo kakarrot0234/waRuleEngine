@@ -1,13 +1,15 @@
 import { ICommonAccessPool } from "./ICommonAccessPool";
 import { EnumRuleNodeResultFoundCd } from "../enums/EnumRuleNodeResultFoundCd";
 import { IIsValidResult } from "./IIsValidResult";
+import { IOperandDefinition } from "./IOperandDefinition";
 
 export abstract class RuleNode {
     NodeParameters: RuleNode[] = [];
 
-    constructor(nodeId: string, data?: any) {
+    constructor(nodeId: string, data?: any, operand?: Partial<IOperandDefinition>) {
         this.m_NodeId = nodeId;
         this.m_ResultData = data;
+        this.m_Operand = operand;
     }
 
     private m_NodeId: string;
@@ -25,6 +27,10 @@ export abstract class RuleNode {
     private m_Error: any | undefined;
     public get Error() {
         return this.m_Error;
+    }
+    private m_Operand: Partial<IOperandDefinition> | undefined;
+    public get Operand() {
+        return this.m_Operand;
     }
 
     public IsValid(): IIsValidResult {

@@ -141,14 +141,18 @@ export class MathTreeFormuletor {
         function escape(s: string) {
             return s.replace(/[\\^$*+?.()|[\]{}]/g, "\\$&");
         }
-        function createTree(binaryNode: IBinaryTreeNode): RuleNode | undefined {
+        function createTree(binaryNode: IBinaryTreeNode, parentRuleNode?: RuleNode): RuleNode | undefined {
             let ruleOperand: RuleNode | undefined;
             
             if (binaryNode.IsGrouping != null && binaryNode.IsGrouping) {
                 ruleOperand = new MathTreeFormuletor().ConvertFormuleToTree(binaryNode.Data);
             } else {
                 if (binaryNode.Operand != null) {
-                    ruleOperand = RuleNodeOptions.CreateRuleNode(binaryNode.Operand.Enum!, undefined, binaryNode.Data);
+                    if (parentRuleNode != null && parentRuleNode.Operand != null && parentRuleNode.Operand.Enum === binaryNode.Operand.Enum) {
+
+                    } else {
+                        ruleOperand = RuleNodeOptions.CreateRuleNode(binaryNode.Operand.Enum!, undefined, binaryNode.Data);
+                    }
 
                     if (ruleOperand != null) {
                         if (binaryNode.LeftData != null) {
