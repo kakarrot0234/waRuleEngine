@@ -7,7 +7,7 @@ import { RuleNodeOptions } from './RuleNodeOptions';
 import { EnumRuleNodeType } from "../enums/EnumRuleNodeType";
 
 export class MathTreeFormuletor {
-    ConvertFormuleToTree(expression: string): RuleNode | undefined {
+    ConvertFormuleToTree(expression: string, parentRuleNode?: RuleNode): RuleNode | undefined {
         let tempId = 1;
         const wrappedSearchResult: IBinaryTreeNode[] = [];
         const operandsToLookFor = findOperandsToLookFor(expression);
@@ -16,7 +16,7 @@ export class MathTreeFormuletor {
         let ruleNodeRoot: RuleNode | undefined;
 
         if (rootBinaryNodeRoot != null) {
-            ruleNodeRoot = createTree(rootBinaryNodeRoot);
+            ruleNodeRoot = createTree(rootBinaryNodeRoot, parentRuleNode);
         }
 
         return ruleNodeRoot;
@@ -148,26 +148,26 @@ export class MathTreeFormuletor {
                 ruleNode = new MathTreeFormuletor().ConvertFormuleToTree(binaryNode.Data);
             } else {
                 if (binaryNode.Operand != null) {
-                    ruleNode = RuleNodeOptions.CreateRuleNode(binaryNode.Operand.Enum!, undefined, binaryNode.Data);
+                    ruleNode = RuleNodeOptions.CreateRuleNode(binaryNode.Operand.Enum!, undefined, binaryNode.Data, parentRuleNode);
 
                     if (ruleNode != null) {
                         if (binaryNode.LeftData != null) {
-                            const leftNode = nodeDataToRuleNode(binaryNode.LeftData);
+                            const leftNode = nodeDataToRuleNode(binaryNode.LeftData, ruleNode);
                             ruleNode.NodeParameters.push(leftNode!);
                         }
                         if (binaryNode.RightData != null) {
-                            const rightNode = nodeDataToRuleNode(binaryNode.RightData);
+                            const rightNode = nodeDataToRuleNode(binaryNode.RightData, ruleNode);
                             ruleNode.NodeParameters.push(rightNode!);
                         }
                     }
                 } else {
-                    ruleNode = nodeDataToRuleNode(binaryNode.Data);
+                    ruleNode = nodeDataToRuleNode(binaryNode.Data, parentRuleNode);
                 }
             }
 
             return ruleNode;
         }
-        function nodeDataToRuleNode(data: any) {
+        function nodeDataToRuleNode(data: any, parentRuleNode?: RuleNode) {
             let ruleNode: RuleNode | undefined;
             const typeofData = typeof data;
 
@@ -198,7 +198,7 @@ export class MathTreeFormuletor {
                 }
             }
             
-            ruleNode = RuleNodeOptions.CreateRuleNode(EnumRuleNodeType.Data, undefined, tempData);
+            ruleNode = RuleNodeOptions.CreateRuleNode(EnumRuleNodeType.Data, undefined, tempData, parentRuleNode);
             return ruleNode;
         }
     }
