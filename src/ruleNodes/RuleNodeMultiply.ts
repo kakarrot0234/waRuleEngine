@@ -1,11 +1,13 @@
-import { RuleNode } from "../interfaces/RuleNode";
+import { RuleNode, IRuleNodeConstructor } from "../interfaces/RuleNode";
 import { IIsValidResult } from "../interfaces/IIsValidResult";
 import { ICommonAccessPool } from "../interfaces/ICommonAccessPool";
+import { CurrentOperandDefinitions } from "../data/CurrentOperandDefinitions";
+import { EnumRuleNodeType } from "../enums/EnumRuleNodeType";
 
 export class RuleNodeMultiply extends RuleNode {
 
-    constructor(nodeId: string) {
-        super(nodeId);
+    constructor(props: Partial<IRuleNodeConstructor>) {
+        super({ NodeId: props.NodeId!, Data: props.Data, Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.Multiply), Parent: props.Parent });
     }
 
     IsValid(): IIsValidResult {

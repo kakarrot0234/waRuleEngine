@@ -1,6 +1,6 @@
 import { IOperandDefinition } from "../interfaces/IOperandDefinition";
 import { IBinaryTreeNode } from "../interfaces/IBinaryTreeNode";
-import { OperandDefinitions } from '../data/OperandDefinitions';
+import { CurrentOperandDefinitions } from '../data/CurrentOperandDefinitions';
 import { CurrentGroupNodes } from '../data/CurrentGroupNodes';
 import { RuleNode } from '../interfaces/RuleNode';
 import { RuleNodeOptions } from './RuleNodeOptions';
@@ -25,8 +25,8 @@ export class MathTreeFormuletor {
             const operandsToLookFor: string[] = [];
             let regexOperandsStr = "";
 
-            for (let ii = 0; ii < OperandDefinitions.length; ii++) {
-                const operand = OperandDefinitions[ii];
+            for (let ii = 0; ii < CurrentOperandDefinitions.OperandDefinitions.length; ii++) {
+                const operand = CurrentOperandDefinitions.OperandDefinitions[ii];
                 let operanWithEscapes = "";
 
                 if (operand.IsGrouping) {
@@ -38,7 +38,7 @@ export class MathTreeFormuletor {
                     }
                 }
 
-                if (ii === OperandDefinitions.length - 1) {
+                if (ii === CurrentOperandDefinitions.OperandDefinitions.length - 1) {
                     regexOperandsStr += operanWithEscapes
                 } else {
                     regexOperandsStr += `${operanWithEscapes}|`;
@@ -56,7 +56,7 @@ export class MathTreeFormuletor {
         }
         function simplifyFormule(expression: string) {
             let expressionLast = expression;
-            const orderedOperands = OperandDefinitions.filter((o) => {
+            const orderedOperands = CurrentOperandDefinitions.OperandDefinitions.filter((o) => {
                 return operandsToLookFor.indexOf(o.Key) >= 0 || o.IsGrouping && operandsToLookFor.indexOf(o.Key.substring(0, 1)) >= 0;
             }).sort((a, b) => {
                 return a.Precedence - b.Precedence;
@@ -142,34 +142,30 @@ export class MathTreeFormuletor {
             return s.replace(/[\\^$*+?.()|[\]{}]/g, "\\$&");
         }
         function createTree(binaryNode: IBinaryTreeNode, parentRuleNode?: RuleNode): RuleNode | undefined {
-            let ruleOperand: RuleNode | undefined;
+            let ruleNode: RuleNode | undefined;
             
             if (binaryNode.IsGrouping != null && binaryNode.IsGrouping) {
-                ruleOperand = new MathTreeFormuletor().ConvertFormuleToTree(binaryNode.Data);
+                ruleNode = new MathTreeFormuletor().ConvertFormuleToTree(binaryNode.Data);
             } else {
                 if (binaryNode.Operand != null) {
-                    if (parentRuleNode != null && parentRuleNode.Operand != null && parentRuleNode.Operand.Enum === binaryNode.Operand.Enum) {
+                    ruleNode = RuleNodeOptions.CreateRuleNode(binaryNode.Operand.Enum!, undefined, binaryNode.Data);
 
-                    } else {
-                        ruleOperand = RuleNodeOptions.CreateRuleNode(binaryNode.Operand.Enum!, undefined, binaryNode.Data);
-                    }
-
-                    if (ruleOperand != null) {
+                    if (ruleNode != null) {
                         if (binaryNode.LeftData != null) {
                             const leftNode = nodeDataToRuleNode(binaryNode.LeftData);
-                            ruleOperand.NodeParameters.push(leftNode!);
+                            ruleNode.NodeParameters.push(leftNode!);
                         }
                         if (binaryNode.RightData != null) {
                             const rightNode = nodeDataToRuleNode(binaryNode.RightData);
-                            ruleOperand.NodeParameters.push(rightNode!);
+                            ruleNode.NodeParameters.push(rightNode!);
                         }
                     }
                 } else {
-                    ruleOperand = nodeDataToRuleNode(binaryNode.Data);
+                    ruleNode = nodeDataToRuleNode(binaryNode.Data);
                 }
             }
 
-            return ruleOperand;
+            return ruleNode;
         }
         function nodeDataToRuleNode(data: any) {
             let ruleNode: RuleNode | undefined;

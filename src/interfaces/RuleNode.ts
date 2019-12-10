@@ -3,13 +3,21 @@ import { EnumRuleNodeResultFoundCd } from "../enums/EnumRuleNodeResultFoundCd";
 import { IIsValidResult } from "./IIsValidResult";
 import { IOperandDefinition } from "./IOperandDefinition";
 
+export interface IRuleNodeConstructor {
+    NodeId: string;
+    Data?: any;
+    Operand?: Partial<IOperandDefinition>;
+    Parent?: RuleNode;
+}
+
 export abstract class RuleNode {
     NodeParameters: RuleNode[] = [];
 
-    constructor(nodeId: string, data?: any, operand?: Partial<IOperandDefinition>) {
-        this.m_NodeId = nodeId;
-        this.m_ResultData = data;
-        this.m_Operand = operand;
+    constructor(props: IRuleNodeConstructor) {
+        this.m_NodeId = props.NodeId;
+        this.m_ResultData = props.Data;
+        this.m_Operand = props.Operand;
+        this.m_ParentRuleNode = props.Parent;
     }
 
     private m_NodeId: string;
@@ -31,6 +39,10 @@ export abstract class RuleNode {
     private m_Operand: Partial<IOperandDefinition> | undefined;
     public get Operand() {
         return this.m_Operand;
+    }
+    private m_ParentRuleNode: RuleNode | undefined;
+    public get ParentRuleNode() {
+        return this.m_ParentRuleNode;
     }
 
     public IsValid(): IIsValidResult {

@@ -1,9 +1,9 @@
-import { RuleNode } from "../interfaces/RuleNode";
+import { RuleNode, IRuleNodeConstructor } from "../interfaces/RuleNode";
 import { IIsValidResult } from "../interfaces/IIsValidResult";
 
 export class RuleNodeData extends RuleNode {
-    constructor(nodeId: string, data?: any) {
-        super(nodeId, data);
+    constructor(props: Partial<IRuleNodeConstructor>) {
+        super({ NodeId: props.NodeId!, Data: props.Data, Parent: props.Parent });
     }
 
     IsValid(): IIsValidResult {
