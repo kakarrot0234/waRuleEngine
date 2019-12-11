@@ -1,13 +1,13 @@
-import { RuleNode, IRuleNodeConstructor } from '../interfaces/RuleNode';
+import { RuleNode, IRuleNodeConstructor } from '../helpers/RuleNode';
 import { IIsValidResult } from '../interfaces/IIsValidResult';
 import { ICommonAccessPool } from '../interfaces/ICommonAccessPool';
 import { CurrentOperandDefinitions } from '../data/CurrentOperandDefinitions';
 import { EnumRuleNodeType } from '../enums/EnumRuleNodeType';
 
-export class RuleNodeNot extends RuleNode {
+export class RuleNodeLogicalNot extends RuleNode {
 
     constructor(props: Partial<IRuleNodeConstructor>) {
-        super({ NodeId: props.NodeId!, Data: props.Data, Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.Not), Parent: props.Parent });
+        super({ NodeId: props.NodeId!, Data: props.Data, Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.LogicalNot), Parent: props.Parent });
     }
 
     IsValid(): IIsValidResult {

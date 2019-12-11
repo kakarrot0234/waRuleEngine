@@ -1,4 +1,4 @@
-import { RuleNode, IRuleNodeConstructor, } from "../interfaces/RuleNode";
+import { RuleNode, IRuleNodeConstructor, } from "../helpers/RuleNode";
 import { IIsValidResult } from "../interfaces/IIsValidResult";
 import { ICommonAccessPool } from "../interfaces/ICommonAccessPool";
 import { CurrentOperandDefinitions } from "../data/CurrentOperandDefinitions";

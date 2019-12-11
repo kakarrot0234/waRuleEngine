@@ -5,7 +5,7 @@ import { EnumRuleNodeType } from '../enums/EnumRuleNodeType';
 export class CurrentOperandDefinitions {
     static OperandDefinitions: IOperandDefinition[] = [
         { Precedence: 1, Key: "()", Direction: EnumOperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, IsGrouping: true, Description: "Grouping" },
-        { Precedence: 2, Key: "!", Enum: EnumRuleNodeType.Not, Direction: EnumOperandDirection.LeftToRight, ThereIsLeftParameter: false, ThereIsRighParameter: true, Description: "Logical NOT", },
+        { Precedence: 2, Key: "!", Enum: EnumRuleNodeType.LogicalNot, Direction: EnumOperandDirection.LeftToRight, ThereIsLeftParameter: false, ThereIsRighParameter: true, Description: "Logical NOT", },
         { Precedence: 3, Key: "**", Enum: EnumRuleNodeType.Exponentiation, Direction: EnumOperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Exponentiation", },
         { Precedence: 4, Key: "*", Enum: EnumRuleNodeType.Multiply, Direction: EnumOperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Multiplication", },
         { Precedence: 4, Key: "/", Enum: EnumRuleNodeType.Divide, Direction: EnumOperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Division", },
@@ -25,16 +25,16 @@ export class CurrentOperandDefinitions {
         { Precedence: 10, Key: "|", Enum: EnumRuleNodeType.BitwiseOr, Direction: EnumOperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Bitwise OR", },
         { Precedence: 11, Key: "&&", Enum: EnumRuleNodeType.LogicalAnd, Direction: EnumOperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Logical AND", },
         { Precedence: 12, Key: "||", Enum: EnumRuleNodeType.LogicalOr, Direction: EnumOperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Logical OR", },
-        { Precedence: 13, Key: "=", Enum: EnumRuleNodeType.Assignment, Direction: EnumOperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
-        { Precedence: 13, Key: "+=", Enum: EnumRuleNodeType.PlusAssignment, Direction: EnumOperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
-        { Precedence: 13, Key: "-=", Enum: EnumRuleNodeType.MinusAssignment, Direction: EnumOperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
-        { Precedence: 13, Key: "**=", Enum: EnumRuleNodeType.ExponentiationAssignment, Direction: EnumOperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
-        { Precedence: 13, Key: "*=", Enum: EnumRuleNodeType.MultiplyAssignment, Direction: EnumOperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
-        { Precedence: 13, Key: "/=", Enum: EnumRuleNodeType.DivideAssignment, Direction: EnumOperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
-        { Precedence: 13, Key: "%=", Enum: EnumRuleNodeType.RemainderAssignment, Direction: EnumOperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
-        { Precedence: 13, Key: "&=", Enum: EnumRuleNodeType.BitwiseAndAssignment, Direction: EnumOperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
-        { Precedence: 13, Key: "^=", Enum: EnumRuleNodeType.BitwiseXorAssignment, Direction: EnumOperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
-        { Precedence: 13, Key: "|=", Enum: EnumRuleNodeType.BitwiseOrAssignment, Direction: EnumOperandDirection.LeftToRight, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
+        { Precedence: 13, Key: "=", Enum: EnumRuleNodeType.Assignment, Direction: EnumOperandDirection.RightToLeft, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
+        { Precedence: 13, Key: "+=", Enum: EnumRuleNodeType.PlusAssignment, Direction: EnumOperandDirection.RightToLeft, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
+        { Precedence: 13, Key: "-=", Enum: EnumRuleNodeType.MinusAssignment, Direction: EnumOperandDirection.RightToLeft, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
+        { Precedence: 13, Key: "**=", Enum: EnumRuleNodeType.ExponentiationAssignment, Direction: EnumOperandDirection.RightToLeft, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
+        { Precedence: 13, Key: "*=", Enum: EnumRuleNodeType.MultiplyAssignment, Direction: EnumOperandDirection.RightToLeft, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
+        { Precedence: 13, Key: "/=", Enum: EnumRuleNodeType.DivideAssignment, Direction: EnumOperandDirection.RightToLeft, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
+        { Precedence: 13, Key: "%=", Enum: EnumRuleNodeType.RemainderAssignment, Direction: EnumOperandDirection.RightToLeft, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
+        { Precedence: 13, Key: "&=", Enum: EnumRuleNodeType.BitwiseAndAssignment, Direction: EnumOperandDirection.RightToLeft, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
+        { Precedence: 13, Key: "^=", Enum: EnumRuleNodeType.BitwiseXorAssignment, Direction: EnumOperandDirection.RightToLeft, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
+        { Precedence: 13, Key: "|=", Enum: EnumRuleNodeType.BitwiseOrAssignment, Direction: EnumOperandDirection.RightToLeft, ThereIsLeftParameter: true, ThereIsRighParameter: true, Description: "Assignment", },
     ];
 
     static FindOperandDefinitions(enumRuleNodeType: EnumRuleNodeType): IOperandDefinition | undefined {

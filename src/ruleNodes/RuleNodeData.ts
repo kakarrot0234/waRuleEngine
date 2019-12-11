@@ -1,4 +1,4 @@
-import { RuleNode, IRuleNodeConstructor } from "../interfaces/RuleNode";
+import { RuleNode, IRuleNodeConstructor } from "../helpers/RuleNode";
 import { IIsValidResult } from "../interfaces/IIsValidResult";
 
 export class RuleNodeData extends RuleNode {

@@ -3,8 +3,9 @@ import { CurrentOperandDefinitions } from './CurrentOperandDefinitions';
 import { EnumRuleNodeType } from '../enums/EnumRuleNodeType';
 
 const currentGroupNodes: IBinaryTreeNode[] = [
-    { Id: "KB1", Data: "2*5", Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.Multiply), LeftData: 2, RightData: 5 },
-    { Id: "A", Data: true, },
+    { Id: "K1", Data: "64/«K2»", Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.Divide), LeftData: 64, RightData: "«K2»" },
+    { Id: "K2", Data: "2**«K3»", Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.Exponentiation), LeftData: 2, RightData: "«K3»" },
+    { Id: "K3", Data: 4 },
 ];
 
 export class CurrentGroupNodes {

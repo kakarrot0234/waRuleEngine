@@ -1,18 +1,17 @@
-import { RuleNode, IRuleNodeConstructor, } from "../helpers/RuleNode";
-import { ICommonAccessPool } from "../interfaces/ICommonAccessPool";
-import { IIsValidResult } from "../interfaces/IIsValidResult";
-import { CurrentOperandDefinitions } from "../data/CurrentOperandDefinitions";
-import { EnumRuleNodeType } from "../enums/EnumRuleNodeType";
+import { RuleNode, IRuleNodeConstructor } from '../helpers/RuleNode';
+import { CurrentOperandDefinitions } from '../data/CurrentOperandDefinitions';
+import { EnumRuleNodeType } from '../enums/EnumRuleNodeType';
+import { IIsValidResult } from '../interfaces/IIsValidResult';
+import { ICommonAccessPool } from '../interfaces/ICommonAccessPool';
 
-export class RuleNodeSmallerOrEqualThan extends RuleNode {
-
+export class RuleNodeExponentiation extends RuleNode {
     constructor(props: Partial<IRuleNodeConstructor>) {
-        super({ NodeId: props.NodeId!, Data: props.Data, Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.SmallerOrEqualThan), Parent: props.Parent });
+        super({ NodeId: props.NodeId!, Data: props.Data, Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.Exponentiation), Parent: props.Parent });
     }
 
     IsValid(): IIsValidResult {
-        if (this.NodeParameters == null || this.NodeParameters.length < 2) {
-            return { IsValid: false, Message: "There must be at least 2 parameter." };
+        if (this.NodeParameters == null || this.NodeParameters.length !== 2) {
+            return { IsValid: false, Message: "There must be 2 parameter." };
         }
 
         return { IsValid: true };
@@ -29,12 +28,16 @@ export class RuleNodeSmallerOrEqualThan extends RuleNode {
                 await this.NodeParameters[0].FindResultData(commonAccessPool);
                 this.ValidateFindingResultIsSuccess(this.NodeParameters[0]);
                 this.ValidatePrecenceOfResultData(this.NodeParameters[0]);
+                this.ValidateTypeOfResultDataIsNumber(this.NodeParameters[0]);
+                const x: number = this.NodeParameters[0].ResultData;
+
                 await this.NodeParameters[1].FindResultData(commonAccessPool);
                 this.ValidateFindingResultIsSuccess(this.NodeParameters[1]);
                 this.ValidatePrecenceOfResultData(this.NodeParameters[1]);
-                const leftSideResult = this.NodeParameters[0].ResultData;
-                const rightSideResult = this.NodeParameters[1].ResultData;
-                const result = leftSideResult <= rightSideResult;
+                this.ValidateTypeOfResultDataIsNumber(this.NodeParameters[1]);
+                const y: number = this.NodeParameters[1].ResultData;
+                const result = Math.pow(x, y);
+
                 return resolve(result);
             } catch (error) {
                 return reject(error);

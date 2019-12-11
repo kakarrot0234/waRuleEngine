@@ -1,7 +1,7 @@
-import { ICommonAccessPool } from "./ICommonAccessPool";
+import { ICommonAccessPool } from "../interfaces/ICommonAccessPool";
 import { EnumRuleNodeResultFoundCd } from "../enums/EnumRuleNodeResultFoundCd";
-import { IIsValidResult } from "./IIsValidResult";
-import { IOperandDefinition } from "./IOperandDefinition";
+import { IIsValidResult } from "../interfaces/IIsValidResult";
+import { IOperandDefinition } from "../interfaces/IOperandDefinition";
 
 export interface IRuleNodeConstructor {
     NodeId: string;
