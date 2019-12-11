@@ -7,7 +7,7 @@ export interface ICriteriaEditorProps {
 };
 
 export function CriteriaEditor(props: ICriteriaEditorProps) {
-    const [mathText, setMathText] = useState<string>("«K1»");
+    const [mathText, setMathText] = useState<string>("«K1»+5+6");
 
     return (
         <div>

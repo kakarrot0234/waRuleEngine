@@ -6,7 +6,7 @@ import { IOperandDefinition } from "../interfaces/IOperandDefinition";
 export interface IRuleNodeConstructor {
     NodeId: string;
     Data?: any;
-    Operand?: Partial<IOperandDefinition>;
+    Operand?: IOperandDefinition;
     Parent?: RuleNode;
     IsParameterCountFixed: boolean;
 }
@@ -38,7 +38,7 @@ export abstract class RuleNode {
     public get Error() {
         return this.m_Error;
     }
-    private m_Operand: Partial<IOperandDefinition> | undefined;
+    private m_Operand: IOperandDefinition | undefined;
     public get Operand() {
         return this.m_Operand;
     }

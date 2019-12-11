@@ -5,6 +5,7 @@ import { CurrentGroupNodes } from '../data/CurrentGroupNodes';
 import { RuleNode } from './RuleNode';
 import { RuleNodeOptions } from './RuleNodeOptions';
 import { EnumRuleNodeType } from "../enums/EnumRuleNodeType";
+import { EnumOperandDirection } from "../enums/EnumOperandDirection";
 
 export class MathTreeFormuletor {
     ConvertFormuleToTree(expression: string, parentRuleNode?: RuleNode): RuleNode | undefined {
@@ -16,7 +17,8 @@ export class MathTreeFormuletor {
         let ruleNodeRoot: RuleNode | undefined;
 
         if (rootBinaryNodeRoot != null) {
-            ruleNodeRoot = createTree(rootBinaryNodeRoot, parentRuleNode);
+            ruleNodeRoot = createBinaryTree(rootBinaryNodeRoot, parentRuleNode);
+            convertToGeneralTree(ruleNodeRoot!);
         }
 
         return ruleNodeRoot;
@@ -141,7 +143,7 @@ export class MathTreeFormuletor {
         function escape(s: string) {
             return s.replace(/[\\^$*+?.()|[\]{}]/g, "\\$&");
         }
-        function createTree(binaryNode: IBinaryTreeNode, parentRuleNode?: RuleNode): RuleNode | undefined {
+        function createBinaryTree(binaryNode: IBinaryTreeNode, parentRuleNode?: RuleNode): RuleNode | undefined {
             let ruleNode: RuleNode | undefined;
             
             if (binaryNode.IsGrouping != null && binaryNode.IsGrouping) {
@@ -183,7 +185,7 @@ export class MathTreeFormuletor {
                     }
 
                     if (groupNode != null) {
-                        ruleNode = createTree(groupNode, parentRuleNode);
+                        ruleNode = createBinaryTree(groupNode, parentRuleNode);
                         return ruleNode;
                     }
                 }
@@ -200,6 +202,35 @@ export class MathTreeFormuletor {
             
             ruleNode = RuleNodeOptions.CreateRuleNode(EnumRuleNodeType.Data, ruleNodeId, tempData, parentRuleNode);
             return ruleNode;
+        }
+        function convertToGeneralTree(binaryNodeRoot: RuleNode) {
+            if (binaryNodeRoot.Operand != null) {
+                binaryNodeRoot.NodeParameters = getNodeParametersForGeneralTree(binaryNodeRoot, binaryNodeRoot.Operand!);
+            }
+        }
+        function getNodeParametersForGeneralTree(nodeToGetParameters: RuleNode, parentOperandDef: IOperandDefinition) {
+            let newNodeParameters: RuleNode[] = [];
+
+            if (nodeToGetParameters.Operand != null &&
+                nodeToGetParameters.Operand.Enum === parentOperandDef.Enum) {
+                if (nodeToGetParameters.Operand.Direction === EnumOperandDirection.LeftToRight) {
+                    for (let index = 0; index < nodeToGetParameters.NodeParameters.length; index++) {
+                        const node = nodeToGetParameters.NodeParameters[index];
+
+                        if (node.IsParameterCountFixed) {
+                            newNodeParameters.push(node);
+                        } else {
+                            newNodeParameters.push(...getNodeParametersForGeneralTree(node, parentOperandDef));
+                        }
+                    }
+                }
+            }
+
+            if (newNodeParameters.length === 0) {
+                newNodeParameters.push(nodeToGetParameters);
+            }
+
+            return newNodeParameters;
         }
     }
 };
