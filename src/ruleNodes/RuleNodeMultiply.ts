@@ -7,7 +7,13 @@ import { EnumRuleNodeType } from "../enums/EnumRuleNodeType";
 export class RuleNodeMultiply extends RuleNode {
 
     constructor(props: Partial<IRuleNodeConstructor>) {
-        super({ NodeId: props.NodeId!, Data: props.Data, Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.Multiply), Parent: props.Parent });
+        super({
+            NodeId: props.NodeId!,
+            Data: props.Data,
+            Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.Multiply),
+            Parent: props.Parent,
+            IsParameterCountFixed: false,
+        });
     }
 
     IsValid(): IIsValidResult {

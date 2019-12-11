@@ -8,6 +8,7 @@ export interface IRuleNodeConstructor {
     Data?: any;
     Operand?: Partial<IOperandDefinition>;
     Parent?: RuleNode;
+    IsParameterCountFixed: boolean;
 }
 
 export abstract class RuleNode {
@@ -18,6 +19,7 @@ export abstract class RuleNode {
         this.m_ResultData = props.Data;
         this.m_Operand = props.Operand;
         this.m_ParentRuleNode = props.Parent;
+        this.m_IsParameterCountFixed = props.IsParameterCountFixed;
     }
 
     private m_NodeId: string;
@@ -43,6 +45,10 @@ export abstract class RuleNode {
     private m_ParentRuleNode: RuleNode | undefined;
     public get ParentRuleNode() {
         return this.m_ParentRuleNode;
+    }
+    private m_IsParameterCountFixed: boolean;
+    public get IsParameterCountFixed() {
+        return this.m_IsParameterCountFixed;
     }
 
     public IsValid(): IIsValidResult {

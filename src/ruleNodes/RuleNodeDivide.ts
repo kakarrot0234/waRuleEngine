@@ -7,7 +7,13 @@ import { EnumRuleNodeType } from "../enums/EnumRuleNodeType";
 export class RuleNodeDivide extends RuleNode {
 
     constructor(props: Partial<IRuleNodeConstructor>) {
-        super({ NodeId: props.NodeId!, Data: props.Data, Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.Divide), Parent: props.Parent });
+        super({
+            NodeId: props.NodeId!,
+            Data: props.Data,
+            Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.Divide),
+            Parent: props.Parent,
+            IsParameterCountFixed: false,
+        });
     }
 
     IsValid(): IIsValidResult {

@@ -7,7 +7,13 @@ import { EnumRuleNodeType } from "../enums/EnumRuleNodeType";
 export class RuleNodeMinus extends RuleNode {
 
     constructor(props: Partial<IRuleNodeConstructor>) {
-        super({ NodeId: props.NodeId!, Data: props.Data, Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.Minus), Parent: props.Parent });
+        super({
+            NodeId: props.NodeId!,
+            Data: props.Data,
+            Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.Minus),
+            Parent: props.Parent,
+            IsParameterCountFixed: false,
+        });
     }
 
     IsValid(): IIsValidResult {
@@ -43,7 +49,7 @@ export class RuleNodeMinus extends RuleNode {
                     this.ValidateTypeOfResultDataIsNumber(ruleNode);
                     result -= ruleNode.ResultData;
                 }
-                
+
                 return resolve(result);
             } catch (error) {
                 return reject(error);

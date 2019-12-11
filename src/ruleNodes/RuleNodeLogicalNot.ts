@@ -7,7 +7,13 @@ import { EnumRuleNodeType } from '../enums/EnumRuleNodeType';
 export class RuleNodeLogicalNot extends RuleNode {
 
     constructor(props: Partial<IRuleNodeConstructor>) {
-        super({ NodeId: props.NodeId!, Data: props.Data, Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.LogicalNot), Parent: props.Parent });
+        super({
+            NodeId: props.NodeId!,
+            Data: props.Data,
+            Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.LogicalNot),
+            Parent: props.Parent,
+            IsParameterCountFixed: true,
+        });
     }
 
     IsValid(): IIsValidResult {

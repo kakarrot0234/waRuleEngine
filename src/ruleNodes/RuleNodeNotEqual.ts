@@ -7,12 +7,18 @@ import { EnumRuleNodeType } from "../enums/EnumRuleNodeType";
 export class RuleNodeNotEqual extends RuleNode {
 
     constructor(props: Partial<IRuleNodeConstructor>) {
-        super({ NodeId: props.NodeId!, Data: props.Data, Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.NotEqual), Parent: props.Parent });
+        super({
+            NodeId: props.NodeId!,
+            Data: props.Data,
+            Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.NotEqual),
+            Parent: props.Parent,
+            IsParameterCountFixed: false,
+        });
     }
 
     IsValid(): IIsValidResult {
-        if (this.NodeParameters == null || this.NodeParameters.length !== 2) {
-            return { IsValid: false, Message: "There must be 1 parameter for left and right side!" };
+        if (this.NodeParameters == null || this.NodeParameters.length < 2) {
+            return { IsValid: false, Message: "There must be at least 2 parameters!" };
         }
 
         return { IsValid: true };
@@ -30,13 +36,23 @@ export class RuleNodeNotEqual extends RuleNode {
                 await this.NodeParameters[0].FindResultData(commonAccessPool);
                 this.ValidateFindingResultIsSuccess(this.NodeParameters[0]);
                 this.ValidatePrecenceOfResultData(this.NodeParameters[0]);
-                const leftSideResult = this.NodeParameters[0].ResultData;
-                await this.NodeParameters[1].FindResultData(commonAccessPool);
-                this.ValidateFindingResultIsSuccess(this.NodeParameters[1]);
-                this.ValidatePrecenceOfResultData(this.NodeParameters[1]);
-                const rightSideResult = this.NodeParameters[1].ResultData;
-                const result = leftSideResult !== rightSideResult;
-                return resolve(result);
+                const x = this.NodeParameters[0].ResultData;
+                let result: boolean;
+
+                for (let index = 0; index < this.NodeParameters.length; index++) {
+                    const ruleNode = this.NodeParameters[index];
+                    await ruleNode.FindResultData(commonAccessPool);
+                    this.ValidateFindingResultIsSuccess(ruleNode);
+                    this.ValidatePrecenceOfResultData(ruleNode);
+                    const y = ruleNode.ResultData;
+                    result = x !== y;
+
+                    if (!result) {
+                        break;
+                    }
+                }
+                
+                return resolve(result!);
             } catch (error) {
                 return reject(error);
             }

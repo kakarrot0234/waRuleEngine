@@ -3,7 +3,12 @@ import { IIsValidResult } from "../interfaces/IIsValidResult";
 
 export class RuleNodeData extends RuleNode {
     constructor(props: Partial<IRuleNodeConstructor>) {
-        super({ NodeId: props.NodeId!, Data: props.Data, Parent: props.Parent });
+        super({
+            NodeId: props.NodeId!,
+            Data: props.Data,
+            Parent: props.Parent,
+            IsParameterCountFixed: true,
+        });
     }
 
     IsValid(): IIsValidResult {
