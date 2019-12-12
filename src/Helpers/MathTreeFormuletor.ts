@@ -26,9 +26,10 @@ export class MathTreeFormuletor {
         function findOperandsToLookFor(expression: string) {
             const operandsToLookFor: string[] = [];
             let regexOperandsStr = "";
+            const orderedOperandDefinitions = CurrentOperandDefinitions.OperandDefinitions.sort((a, b) => b.Key.length - a.Key.length);
 
-            for (let ii = 0; ii < CurrentOperandDefinitions.OperandDefinitions.length; ii++) {
-                const operand = CurrentOperandDefinitions.OperandDefinitions[ii];
+            for (let ii = 0; ii < orderedOperandDefinitions.length; ii++) {
+                const operand = orderedOperandDefinitions[ii];
                 let operanWithEscapes = "";
 
                 if (operand.IsGrouping) {
