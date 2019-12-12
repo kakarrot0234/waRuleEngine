@@ -4,10 +4,12 @@ import { IIsValidResult } from "../interfaces/IIsValidResult";
 export class RuleNodeData extends RuleNode {
     constructor(props: Partial<IRuleNodeConstructor>) {
         super({
-            NodeId: props.NodeId!,
+            Id: props.Id!,
+            NodeRef: props.NodeRef,
             Data: props.Data,
             Parent: props.Parent,
             IsParameterCountFixed: true,
+            IsCustomRuleNode: props.IsCustomRuleNode,
         });
     }
 

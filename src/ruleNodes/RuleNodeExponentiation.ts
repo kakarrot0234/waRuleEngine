@@ -7,11 +7,13 @@ import { ICommonAccessPool } from '../interfaces/ICommonAccessPool';
 export class RuleNodeExponentiation extends RuleNode {
     constructor(props: Partial<IRuleNodeConstructor>) {
         super({
-            NodeId: props.NodeId!,
+            Id: props.Id!,
+            NodeRef: props.NodeRef,
             Data: props.Data,
             Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.Exponentiation),
             Parent: props.Parent,
-            IsParameterCountFixed: true
+            IsParameterCountFixed: true,
+            IsCustomRuleNode: props.IsCustomRuleNode,
         });
     }
 

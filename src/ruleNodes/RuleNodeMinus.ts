@@ -8,11 +8,13 @@ export class RuleNodeMinus extends RuleNode {
 
     constructor(props: Partial<IRuleNodeConstructor>) {
         super({
-            NodeId: props.NodeId!,
+            Id: props.Id!,
+            NodeRef: props.NodeRef,
             Data: props.Data,
             Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.Minus),
             Parent: props.Parent,
             IsParameterCountFixed: false,
+            IsCustomRuleNode: props.IsCustomRuleNode,
         });
     }
 

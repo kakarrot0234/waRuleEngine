@@ -150,7 +150,7 @@ export class MathTreeFormuletor {
                 ruleNode = new MathTreeFormuletor().ConvertFormuleToTree(binaryNode.Data);
             } else {
                 if (binaryNode.Operand != null) {
-                    ruleNode = RuleNodeOptions.CreateRuleNode(binaryNode.Operand.Enum!, binaryNode.Id, binaryNode.Data, parentRuleNode);
+                    ruleNode = RuleNodeOptions.CreateRuleNode(binaryNode.Operand.Enum!, undefined, binaryNode.Id, binaryNode.Data, parentRuleNode, binaryNode.IsCustomNode);
 
                     if (ruleNode != null) {
                         if (binaryNode.LeftData != null) {
@@ -200,7 +200,7 @@ export class MathTreeFormuletor {
                 }
             }
             
-            ruleNode = RuleNodeOptions.CreateRuleNode(EnumRuleNodeType.Data, ruleNodeId, tempData, parentRuleNode);
+            ruleNode = RuleNodeOptions.CreateRuleNode(EnumRuleNodeType.Data, undefined, ruleNodeId, tempData, parentRuleNode);
             return ruleNode;
         }
         function convertToGeneralTree(binaryNodeRoot: RuleNode) {
@@ -217,7 +217,7 @@ export class MathTreeFormuletor {
                     for (let index = 0; index < nodeToGetParameters.NodeParameters.length; index++) {
                         const node = nodeToGetParameters.NodeParameters[index];
 
-                        if (node.IsParameterCountFixed) {
+                        if (node.IsParameterCountFixed || node.IsCustomRuleNode) {
                             newNodeParameters.push(node);
                         } else {
                             newNodeParameters.push(...getNodeParametersForGeneralTree(node, parentOperandDef));

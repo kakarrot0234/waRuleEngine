@@ -4,27 +4,35 @@ import { IIsValidResult } from "../interfaces/IIsValidResult";
 import { IOperandDefinition } from "../interfaces/IOperandDefinition";
 
 export interface IRuleNodeConstructor {
-    NodeId: string;
+    Id: string;
+    NodeRef?: string;
     Data?: any;
     Operand?: IOperandDefinition;
     Parent?: RuleNode;
     IsParameterCountFixed: boolean;
+    IsCustomRuleNode?: boolean;
 }
 
 export abstract class RuleNode {
     NodeParameters: RuleNode[] = [];
 
     constructor(props: IRuleNodeConstructor) {
-        this.m_NodeId = props.NodeId;
+        this.m_Id = props.Id;
+        this.m_NodeRef = props.NodeRef;
         this.m_ResultData = props.Data;
         this.m_Operand = props.Operand;
         this.m_ParentRuleNode = props.Parent;
         this.m_IsParameterCountFixed = props.IsParameterCountFixed;
+        this.m_IsCustomRuleNode = props.IsCustomRuleNode;
     }
 
-    private m_NodeId: string;
-    public get NodeId() {
-        return this.m_NodeId;
+    private m_Id: string;
+    public get Id() {
+        return this.m_Id;
+    }
+    private m_NodeRef: string | undefined;
+    public get NodeRef() {
+        return this.m_NodeRef;
     }
     private m_ResultFoundCd = EnumRuleNodeResultFoundCd.NotFoundYet;
     public get ResultFoundCd() {
@@ -50,6 +58,10 @@ export abstract class RuleNode {
     public get IsParameterCountFixed() {
         return this.m_IsParameterCountFixed;
     }
+    private m_IsCustomRuleNode: boolean | undefined;
+    public get IsCustomRuleNode() {
+        return this.m_IsCustomRuleNode;
+    }
 
     public IsValid(): IIsValidResult {
         return { IsValid: true, };
@@ -70,26 +82,26 @@ export abstract class RuleNode {
     protected abstract SelfFindResultData(commonAccessPool?: ICommonAccessPool): Promise<any>;
     protected ValidateFindingResultIsSuccess(ruleNode: RuleNode) {
         if (ruleNode.ResultData == null) {
-            throw new Error(`Finding Result data of the Node that its id number is '${ruleNode.NodeId}' was not success!`);
+            throw new Error(`Finding Result data of the Node that its id number is '${ruleNode.Id}' was not success!`);
         }
     }
     protected ValidatePrecenceOfResultData(ruleNode: RuleNode) {
         if (ruleNode.ResultData == null) {
-            throw new Error(`Result data of the Node that its id number is '${ruleNode.NodeId}' was not found!`);
+            throw new Error(`Result data of the Node that its id number is '${ruleNode.Id}' was not found!`);
         }
     }
     protected ValidateTypeOfResultDataIsNumber(ruleNode: RuleNode) {
         const typeOfResultData = typeof ruleNode.ResultData;
 
         if (typeOfResultData !== "number") {
-            throw new Error(`Type of Result Data of Node that its id number is '${ruleNode.NodeId}' must be of type '${typeOfResultData}'`);
+            throw new Error(`Type of Result Data of Node that its id number is '${ruleNode.Id}' must be of type '${typeOfResultData}'`);
         }
     }
     protected ValidateTypeOfResultDataIsBoolean(ruleNode: RuleNode) {
         const typeOfResultData = typeof ruleNode.ResultData;
 
         if (typeOfResultData !== "boolean") {
-            throw new Error(`Type of Result Data of Node that its id number is '${ruleNode.NodeId}' must be of type '${typeOfResultData}'`);
+            throw new Error(`Type of Result Data of Node that its id number is '${ruleNode.Id}' must be of type '${typeOfResultData}'`);
         }
     }
     protected ValidateTypeOfResultDataIsAcceptable(listOfAcceptedTypes: string[], ruleNode: RuleNode) {
@@ -107,7 +119,7 @@ export abstract class RuleNode {
                     acceptedTypesStr += `${acceptedType}, `;
                 }
             }
-            throw new Error(`Type of Result Data of Node that its id number is '${ruleNode.NodeId}' must be one of type from: '${acceptedTypesStr}'`);
+            throw new Error(`Type of Result Data of Node that its id number is '${ruleNode.Id}' must be one of type from: '${acceptedTypesStr}'`);
         }
     }
 

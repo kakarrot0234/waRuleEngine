@@ -13,7 +13,7 @@ import { RuleNodeLogicalAnd } from '../ruleNodes/RuleNodeLogicalAnd';
 import { RuleNodeLogicalOr } from '../ruleNodes/RuleNodeLogicalOr';
 
 export class RuleNodeOptions {
-    static CreateRuleNode(enumRuleNodeType: EnumRuleNodeType, ruleNodeId?: string, data?: any, parentRuleNode?: RuleNode): RuleNode | undefined {
+    static CreateRuleNode(enumRuleNodeType: EnumRuleNodeType, ruleNodeId?: string, nodeRef?: string, data?: any, parentRuleNode?: RuleNode, isCustumRuleNode?: boolean): RuleNode | undefined {
         let ruleNodeIdTemp: string;
 
         if (!StringOptions.IsNullOrEmpty(ruleNodeId)) {
@@ -24,23 +24,23 @@ export class RuleNodeOptions {
 
         switch (enumRuleNodeType) {
             case EnumRuleNodeType.Plus:
-                return new RuleNodePlus({ NodeId: ruleNodeIdTemp });
+                return new RuleNodePlus({ Id: ruleNodeIdTemp, NodeRef: nodeRef, Parent: parentRuleNode, IsCustomRuleNode: isCustumRuleNode });
             case EnumRuleNodeType.Minus:
-                return new RuleNodeMinus({ NodeId: ruleNodeIdTemp });
+                return new RuleNodeMinus({ Id: ruleNodeIdTemp, NodeRef: nodeRef, Parent: parentRuleNode, IsCustomRuleNode: isCustumRuleNode });
             case EnumRuleNodeType.Multiply:
-                return new RuleNodeMultiply({ NodeId: ruleNodeIdTemp });
+                return new RuleNodeMultiply({ Id: ruleNodeIdTemp, NodeRef: nodeRef, Parent: parentRuleNode, IsCustomRuleNode: isCustumRuleNode });
             case EnumRuleNodeType.LogicalAnd:
-                return new RuleNodeLogicalAnd({ NodeId: ruleNodeIdTemp });
+                return new RuleNodeLogicalAnd({ Id: ruleNodeIdTemp, NodeRef: nodeRef, Parent: parentRuleNode, IsCustomRuleNode: isCustumRuleNode });
             case EnumRuleNodeType.LogicalOr:
-                return new RuleNodeLogicalOr({ NodeId: ruleNodeIdTemp });
+                return new RuleNodeLogicalOr({ Id: ruleNodeIdTemp, NodeRef: nodeRef, Parent: parentRuleNode, IsCustomRuleNode: isCustumRuleNode });
             case EnumRuleNodeType.LogicalNot:
-                return new RuleNodeLogicalNot({ NodeId: ruleNodeIdTemp });
+                return new RuleNodeLogicalNot({ Id: ruleNodeIdTemp, NodeRef: nodeRef, Parent: parentRuleNode, IsCustomRuleNode: isCustumRuleNode });
             case EnumRuleNodeType.Divide:
-                return new RuleNodeDivide({ NodeId: ruleNodeIdTemp });
+                return new RuleNodeDivide({ Id: ruleNodeIdTemp, NodeRef: nodeRef, Parent: parentRuleNode, IsCustomRuleNode: isCustumRuleNode });
             case EnumRuleNodeType.Exponentiation:
-                return new RuleNodeExponentiation({ NodeId: ruleNodeIdTemp });
+                return new RuleNodeExponentiation({ Id: ruleNodeIdTemp, NodeRef: nodeRef, Parent: parentRuleNode, IsCustomRuleNode: isCustumRuleNode });
             case EnumRuleNodeType.Data:
-                return new RuleNodeData({ NodeId: ruleNodeIdTemp, Data: data });
+                return new RuleNodeData({ Id: ruleNodeIdTemp, NodeRef: nodeRef, Parent: parentRuleNode, IsCustomRuleNode: isCustumRuleNode, Data: data });
             default:
                 return undefined;
         }

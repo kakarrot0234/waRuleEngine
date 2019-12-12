@@ -7,11 +7,13 @@ import { ICommonAccessPool } from '../interfaces/ICommonAccessPool';
 export class RuleNodeLogicalOr extends RuleNode {
     constructor(props: Partial<IRuleNodeConstructor>) {
         super({
-            NodeId: props.NodeId!,
+            Id: props.Id!,
+            NodeRef: props.NodeRef,
             Data: props.Data,
             Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.LogicalAnd),
             Parent: props.Parent,
             IsParameterCountFixed: false,
+            IsCustomRuleNode: props.IsCustomRuleNode,
         });
     }
 

@@ -8,11 +8,13 @@ export class RuleNodeMultiply extends RuleNode {
 
     constructor(props: Partial<IRuleNodeConstructor>) {
         super({
-            NodeId: props.NodeId!,
+            Id: props.Id!,
+            NodeRef: props.NodeRef,
             Data: props.Data,
             Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.Multiply),
             Parent: props.Parent,
             IsParameterCountFixed: false,
+            IsCustomRuleNode: props.IsCustomRuleNode,
         });
     }
 

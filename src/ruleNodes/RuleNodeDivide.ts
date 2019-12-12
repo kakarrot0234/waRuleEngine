@@ -8,11 +8,13 @@ export class RuleNodeDivide extends RuleNode {
 
     constructor(props: Partial<IRuleNodeConstructor>) {
         super({
-            NodeId: props.NodeId!,
+            Id: props.Id!,
+            NodeRef: props.NodeRef,
             Data: props.Data,
             Operand: CurrentOperandDefinitions.FindOperandDefinitions(EnumRuleNodeType.Divide),
             Parent: props.Parent,
             IsParameterCountFixed: false,
+            IsCustomRuleNode: props.IsCustomRuleNode,
         });
     }
 
@@ -45,7 +47,7 @@ export class RuleNodeDivide extends RuleNode {
                 this.ValidateTypeOfResultDataIsNumber(this.NodeParameters[1]);
 
                 if (this.NodeParameters[1].ResultData === 0) {
-                    throw new Error(`Result data of the Node that its id number is '${this.NodeParameters[1].NodeId}' is 0. The divider connot be 0.!`);
+                    throw new Error(`Result data of the Node that its id number is '${this.NodeParameters[1].Id}' is 0. The divider connot be 0.!`);
                 }
 
                 result = this.NodeParameters[0].ResultData / this.NodeParameters[1].ResultData;
@@ -58,7 +60,7 @@ export class RuleNodeDivide extends RuleNode {
                     this.ValidateTypeOfResultDataIsNumber(nodeParameter);
 
                     if (nodeParameter.ResultData === 0) {
-                        throw Error(`Result data of the Node that its id number is '${nodeParameter.NodeId}' is 0. The divider connot be 0.!`);
+                        throw Error(`Result data of the Node that its id number is '${nodeParameter.Id}' is 0. The divider connot be 0.!`);
                     }
 
                     result = result / nodeParameter.ResultData;
