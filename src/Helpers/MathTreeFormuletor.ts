@@ -94,7 +94,7 @@ export class MathTreeFormuletor {
             return [success, expressionLast,];
         }
         function searchForGroup(operand: IOperandDefinition, expression: string): [boolean, string] {
-            const regex = new RegExp(`${escape(operand.Key.substring(0, 1))}([^${operand.Key}]*)${escape(operand.Key.substring(1, 2))}`, "gu");
+            const regex = new RegExp(`${operand.OperandParRegexStr}`, "gu");
             let expressionLast = expression;
             let regexResult = regex.exec(expressionLast);
 
@@ -109,9 +109,6 @@ export class MathTreeFormuletor {
         }
         function createNodeId() {
             return tempId++;
-        }
-        function escape(s: string) {
-            return s.replace(/[\\^$*+?.()|[\]{}]/g, "\\$&");
         }
         function createBinaryTree(binaryNode: IBinaryTreeNode, parentRuleNode?: RuleNode): RuleNode | undefined {
             let ruleNode: RuleNode | undefined;
