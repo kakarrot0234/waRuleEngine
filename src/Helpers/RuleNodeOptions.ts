@@ -1,17 +1,19 @@
-import { EnumRuleNodeType } from "../enums/EnumRuleNodeType";
-import { RuleNodePlus } from "../ruleNodes/RuleNodePlus";
-import { RuleNode } from "./RuleNode";
-import { RuleNodeData } from "../ruleNodes/RuleNodeData";
 import uuid = require("uuid");
+
+import { EnumRuleNodeType } from "../enums/EnumRuleNodeType";
+import { RuleNodeData } from "../ruleNodes/RuleNodeData";
+import { RuleNodeDivide } from "../ruleNodes/RuleNodeDivide";
+import { RuleNodeExponentiation } from "../ruleNodes/RuleNodeExponentiation";
+import { RuleNodeIn } from "../ruleNodes/RuleNodeIn";
+import { RuleNodeLogicalAnd } from "../ruleNodes/RuleNodeLogicalAnd";
+import { RuleNodeLogicalNot } from "../ruleNodes/RuleNodeLogicalNot";
+import { RuleNodeLogicalOr } from "../ruleNodes/RuleNodeLogicalOr";
 import { RuleNodeMinus } from "../ruleNodes/RuleNodeMinus";
-import { StringOptions } from "./StringOptions";
 import { RuleNodeMultiply } from "../ruleNodes/RuleNodeMultiply";
-import { RuleNodeLogicalNot } from '../ruleNodes/RuleNodeLogicalNot';
-import { RuleNodeDivide } from '../ruleNodes/RuleNodeDivide';
-import { RuleNodeExponentiation } from '../ruleNodes/RuleNodeExponentiation';
-import { RuleNodeLogicalAnd } from '../ruleNodes/RuleNodeLogicalAnd';
-import { RuleNodeLogicalOr } from '../ruleNodes/RuleNodeLogicalOr';
-import { RuleNodeRemainder } from '../ruleNodes/RuleNodeRemainder';
+import { RuleNodePlus } from "../ruleNodes/RuleNodePlus";
+import { RuleNodeRemainder } from "../ruleNodes/RuleNodeRemainder";
+import { RuleNode } from "./RuleNode";
+import { StringOptions } from "./StringOptions";
 
 export class RuleNodeOptions {
     static CreateRuleNode(enumRuleNodeType: EnumRuleNodeType, ruleNodeId?: string, nodeRef?: string, data?: any, parentRuleNode?: RuleNode, isCustumRuleNode?: boolean): RuleNode | undefined {
@@ -40,8 +42,10 @@ export class RuleNodeOptions {
                 return new RuleNodeDivide({ Id: ruleNodeIdTemp, NodeRef: nodeRef, Parent: parentRuleNode, IsCustomRuleNode: isCustumRuleNode });
             case EnumRuleNodeType.Exponentiation:
                 return new RuleNodeExponentiation({ Id: ruleNodeIdTemp, NodeRef: nodeRef, Parent: parentRuleNode, IsCustomRuleNode: isCustumRuleNode });
-                case EnumRuleNodeType.Remainder:
-                    return new RuleNodeRemainder({ Id: ruleNodeIdTemp, NodeRef: nodeRef, Parent: parentRuleNode, IsCustomRuleNode: isCustumRuleNode });
+            case EnumRuleNodeType.Remainder:
+                return new RuleNodeRemainder({ Id: ruleNodeIdTemp, NodeRef: nodeRef, Parent: parentRuleNode, IsCustomRuleNode: isCustumRuleNode });
+            case EnumRuleNodeType.In:
+                return new RuleNodeIn({ Id: ruleNodeIdTemp, NodeRef: nodeRef, Parent: parentRuleNode, IsCustomRuleNode: isCustumRuleNode });
             case EnumRuleNodeType.Data:
                 return new RuleNodeData({ Id: ruleNodeIdTemp, NodeRef: nodeRef, Parent: parentRuleNode, IsCustomRuleNode: isCustumRuleNode, Data: data });
             default:

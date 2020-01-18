@@ -1,5 +1,6 @@
 import { EnumOperandDirection } from "../enums/EnumOperandDirection";
 import { EnumRuleNodeType } from "../enums/EnumRuleNodeType";
+
 export interface IOperandDefinition {
     Precedence: number;
     Key: string;
@@ -9,4 +10,6 @@ export interface IOperandDefinition {
     ThereIsLeftParameter: boolean;
     ThereIsRighParameter: boolean;
     Description: string;
+    OperandRegexStr: string;
+    OperandParRegexStr: string;
 }

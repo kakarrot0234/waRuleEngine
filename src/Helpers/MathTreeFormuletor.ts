@@ -1,11 +1,11 @@
-import { IOperandDefinition } from "../interfaces/IOperandDefinition";
-import { IBinaryTreeNode } from "../interfaces/IBinaryTreeNode";
-import { CurrentOperandDefinitions } from '../data/CurrentOperandDefinitions';
-import { CurrentGroupNodes } from '../data/CurrentGroupNodes';
-import { RuleNode } from './RuleNode';
-import { RuleNodeOptions } from './RuleNodeOptions';
-import { EnumRuleNodeType } from "../enums/EnumRuleNodeType";
+import { CurrentGroupNodes } from "../data/CurrentGroupNodes";
+import { CurrentOperandDefinitions } from "../data/CurrentOperandDefinitions";
 import { EnumOperandDirection } from "../enums/EnumOperandDirection";
+import { EnumRuleNodeType } from "../enums/EnumRuleNodeType";
+import { IBinaryTreeNode } from "../interfaces/IBinaryTreeNode";
+import { IOperandDefinition } from "../interfaces/IOperandDefinition";
+import { RuleNode } from "./RuleNode";
+import { RuleNodeOptions } from "./RuleNodeOptions";
 
 export class MathTreeFormuletor {
     ConvertFormuleToTree(expression: string, parentRuleNode?: RuleNode): RuleNode | undefined {
@@ -25,42 +25,24 @@ export class MathTreeFormuletor {
 
         function findOperandsToLookFor(expression: string) {
             const operandsToLookFor: string[] = [];
-            let regexOperandsStr = "";
-            const orderedOperandDefinitions = CurrentOperandDefinitions.OperandDefinitions.sort((a, b) => b.Key.length - a.Key.length);
-
-            for (let ii = 0; ii < orderedOperandDefinitions.length; ii++) {
-                const operand = orderedOperandDefinitions[ii];
-                let operanWithEscapes = "";
-
-                if (operand.IsGrouping) {
-                    operanWithEscapes += escape(operand.Key.substring(0, 1));
-                } else {
-                    for (let jj = 0; jj < operand.Key.length; jj++) {
-                        const element = operand.Key[jj];
-                        operanWithEscapes += escape(element);
-                    }
+            const allOperandDefs = CurrentOperandDefinitions.OperandDefinitions.sort((a, b) => {
+                return b.Key.length - a.Key.length;
+            });
+            allOperandDefs.forEach(operandDef => {
+                const regexOperand = new RegExp(operandDef.OperandRegexStr, "gu");
+                const regexOperandResult = regexOperand.exec(expression);
+                
+                if (regexOperandResult != null) {
+                    operandsToLookFor.push(operandDef.Key);
                 }
-
-                if (ii === CurrentOperandDefinitions.OperandDefinitions.length - 1) {
-                    regexOperandsStr += operanWithEscapes
-                } else {
-                    regexOperandsStr += `${operanWithEscapes}|`;
-                }
-            }
-
-            const regexOperands = new RegExp(regexOperandsStr, "gu");
-            let regexOperandsResult = regexOperands.exec(expression);
-            while (regexOperandsResult) {
-                operandsToLookFor.push(regexOperandsResult[0]);
-                regexOperandsResult = regexOperands.exec(expression);
-            }
+            });
 
             return operandsToLookFor;
         }
         function simplifyFormule(expression: string) {
             let expressionLast = expression;
             const orderedOperands = CurrentOperandDefinitions.OperandDefinitions.filter((o) => {
-                return operandsToLookFor.indexOf(o.Key) >= 0 || o.IsGrouping && operandsToLookFor.indexOf(o.Key.substring(0, 1)) >= 0;
+                return operandsToLookFor.indexOf(o.Key) >= 0;
             }).sort((a, b) => {
                 return a.Precedence - b.Precedence;
             });
@@ -85,35 +67,22 @@ export class MathTreeFormuletor {
             if (operand.IsGrouping) {
                 [success, expressionLast] = searchForGroup(operand, expressionLast);
             } else {
-                if (operand.ThereIsLeftParameter && operand.ThereIsRighParameter) {
-                    const regexStr = `(«?\\w+(?:\\[.*?\\])?»?)${escape(operand.Key)}(«?\\w+(?:\\[.*?\\])?»?)`;
-                    const regex = new RegExp(regexStr, "gu");
-                    const regexResult = regex.exec(expressionLast);
+                const regexStr = operand.OperandParRegexStr;
+                const regex = new RegExp(regexStr, "gu");
+                const regexResult = regex.exec(expressionLast);
 
-                    if (regexResult) {
+                if (regexResult != null) {
+                    if (operand.ThereIsLeftParameter && operand.ThereIsRighParameter) {
                         const nodeId = createNodeId();
                         wrappedSearchResult.push({ Id: nodeId.toString(), Data: regexResult[0], Operand: operand, LeftData: regexResult[1], RightData: regexResult[2] });
                         expressionLast = expressionLast.replace(regex, `«${nodeId}»`);
                         success = true;
-                    }
-                } else if (operand.ThereIsLeftParameter) {
-                    const regexStr = `(«?\\w+(?:\\[.*?\\])?»?)${escape(operand.Key)}`;
-                    const regex = new RegExp(regexStr, "gu");
-                    const regexResult = regex.exec(expressionLast);
-
-                    if (regexResult) {
+                    } else if (operand.ThereIsLeftParameter) {
                         const nodeId = createNodeId();
                         wrappedSearchResult.push({ Id: nodeId.toString(), Data: regexResult[0], Operand: operand, LeftData: regexResult[1] });
                         expressionLast = expressionLast.replace(regex, `«${nodeId}»`);
                         success = true;
-                    }
-                }
-                else if (operand.ThereIsRighParameter) {
-                    const regexStr = `${escape(operand.Key)}(«?\\w+(?:\\[.*?\\])?»?)`;
-                    const regex = new RegExp(regexStr, "gu");
-                    const regexResult = regex.exec(expressionLast);
-
-                    if (regexResult) {
+                    } else if (operand.ThereIsRighParameter) {
                         const nodeId = createNodeId();
                         wrappedSearchResult.push({ Id: nodeId.toString(), Data: regexResult[0], Operand: operand, RightData: regexResult[1] });
                         expressionLast = expressionLast.replace(regex, `«${nodeId}»`);

@@ -29,5 +29,7 @@ export enum EnumRuleNodeType {
     BitwiseAndAssignment,
     BitwiseXorAssignment,
     BitwiseOrAssignment,
-    Data
+    Data,
+    In,
+    NotIn,
 }
