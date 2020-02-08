@@ -1,4 +1,5 @@
-import { IOperandDefinition } from "./IOperandDefinition";
+import { IOperandDefinition, } from "./IOperandDefinition";
+
 export interface IBinaryTreeNode {
     Id: string;
     IsGrouping?: boolean;
@@ -7,4 +8,5 @@ export interface IBinaryTreeNode {
     Operand?: IOperandDefinition;
     LeftData?: any;
     RightData?: any;
+    Description?: string;
 }

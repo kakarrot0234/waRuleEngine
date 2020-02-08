@@ -1,0 +1,14 @@
+.text-area-with-title {
+    border: 1px solid black;
+}
+
+.text-area-with-title .text-area-title {
+    position: absolute;
+    opacity: 40%;
+}
+
+.text-area-with-title .text-area {
+    width: 100%;
+    margin-top: 16px;
+    border: 0px;
+}

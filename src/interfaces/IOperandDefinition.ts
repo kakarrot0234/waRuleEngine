@@ -1,10 +1,11 @@
 import { EnumOperandDirection } from "../enums/EnumOperandDirection";
-import { EnumRuleNodeType } from "../enums/EnumRuleNodeType";
+import { EnumOperandType } from "../enums/EnumOperandType";
 
 export interface IOperandDefinition {
+    Guid?: string;
     Precedence: number;
     Key: string;
-    Enum?: EnumRuleNodeType;
+    EnumOperandType?: EnumOperandType;
     IsGrouping?: boolean;
     Direction?: EnumOperandDirection;
     ThereIsLeftParameter: boolean;

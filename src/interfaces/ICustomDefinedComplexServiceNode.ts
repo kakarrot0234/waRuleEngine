@@ -1,10 +1,13 @@
 export interface ICustomDefinedComplexServiceNode {
-    Guid?: string;
-    ParentRef?: string;
-    Id?: string;
-    OperandRef?: string;
-    OperandLeftPar?: string;
-    OperandRightPar?: string;
+    ActiveCd?: string;
     Data?: string;
     Description?: string;
+    Guid?: string;
+    Id?: string;
+    IsCustomNode?: boolean;
+    NodeTypeRef?: string;
+    OperandTypeRef?: string;
+    ParentGuidRef?: string;
+    ParameterOrder?: number;
+    ComplexMathExpression?: string;
 }

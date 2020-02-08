@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.tsx",
   "scripts": {
-    "open": "webpack-dev-server --config webpack.dev.js",
-    "start": "webpack --config webpack.dev.js",
-    "build": "webpack --config webpack.prod.js"
+    "start": "webpack-dev-server --config webpack.dev.js",
+    "build-dev": "webpack --config webpack.dev.js",
+    "build-prod": "webpack --config webpack.prod.js"
   },
   "author": "kakarrot0234",
   "license": "ISC",
@@ -34,6 +34,9 @@
     "webpack-merge": "^4.2.1"
   },
   "dependencies": {
+    "ag-grid-community": "^22.1.1",
+    "ag-grid-enterprise": "^22.1.1",
+    "ag-grid-react": "^22.1.1",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-router-dom": "^5.0.1",

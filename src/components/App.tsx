@@ -1,7 +1,12 @@
-import * as React from 'react';
-import { BrowserRouter, Route, Link } from 'react-router-dom';
-import {Home} from './Home';
-import {About} from './About';
+import "../extensions/ArrayExtension";
+import "ag-grid-community/dist/styles/ag-grid.css";
+import "ag-grid-community/dist/styles/ag-theme-balham.css";
+
+import * as React from "react";
+import { BrowserRouter, Link, Route } from "react-router-dom";
+
+import { About } from "./About";
+import { Home } from "./Home";
 
 export class App extends React.Component {
     render() {
@@ -25,7 +30,7 @@ export class App extends React.Component {
                         </div>
                     </nav>
                 </div>
-                <div className="main-content">
+                <div className="main-content ag-theme-balham">
                     <Route exact path="/" component={Home}></Route>
                     <Route path="/About" component={About}></Route>
                 </div>

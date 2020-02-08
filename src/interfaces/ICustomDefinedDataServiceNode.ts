@@ -1,5 +1,7 @@
 export interface ICustomDefinedDataServiceNode {
-    Guid?: string;
+    ActiveCd?: string;
     DataKey?: string;
     Description?: string;
+    Guid?: string;
+    Id?: string;
 }
