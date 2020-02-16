@@ -21,7 +21,7 @@ export function MathNodeManagement (props: IMathNodeManagementProps) {
   return (
     <div className="math-node-management-root">
       <div className="guid-generator-container">
-        <button className="guid-generate" onClick={() => {
+        <button className="guid-generate" onClick={async () => {
           const newGuid = GuidProvider.GetGuid();
           setGuid(newGuid);
         }}>Generate Guid</button>

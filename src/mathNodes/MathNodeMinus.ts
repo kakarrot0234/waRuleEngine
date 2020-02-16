@@ -1,5 +1,3 @@
-import { CurrentOperandDefinitionsProvider } from "../dataProviders/CurrentOperandDefinitionsProvider";
-import { EnumOperandType } from "../enums/EnumOperandType";
 import { MathNode } from "../Helpers/MathNode";
 import { IIsValidResult } from "../interfaces/IIsValidResult";
 import { IMathNodeCreatorProps } from "../interfaces/IMathNodeCreatorProps";
@@ -9,7 +7,6 @@ export class MathNodeMinus extends MathNode {
   constructor (props: Partial<IMathNodeCreatorProps>) {
     super({
       ...props,
-      Operand: new CurrentOperandDefinitionsProvider().GetOperandDefinition(undefined, EnumOperandType.Minus),
       IsParameterCountFixed: false,
     });
   }

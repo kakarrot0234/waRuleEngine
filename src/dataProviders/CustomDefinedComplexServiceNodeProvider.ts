@@ -1,260 +1,128 @@
+import axios from "axios";
+
 import { EnumMathNodeType } from "../enums/EnumMathNodeType";
-import { EnumOperandType } from "../enums/EnumOperandType";
 import { MathNodeOptions } from "../Helpers/MathNodeOptions";
 import { ICustomDataService } from "../interfaces/ICustomDataService";
-import { ICustomDefinedComplexServiceNode } from "../interfaces/ICustomDefinedComplexServiceNode";
 import { IMathNode } from "../interfaces/IMathNode";
 import { IMathNodeCreatorProps } from "../interfaces/IMathNodeCreatorProps";
 import { IOperandDefinition } from "../interfaces/IOperandDefinition";
-import { IOperandType } from "../interfaces/IOperandType";
 import { CurrentOperandDefinitionsProvider } from "./CurrentOperandDefinitionsProvider";
-import { GuidProvider } from "./GuidProvider";
-import { MathNodeTypeProvider } from "./MathNodeTypeProvider";
-import { OperandTypeProvider } from "./OperandTypeProvider";
+
+interface INodeDataForAppSaving {
+  Guid?: string;
+  FollowId?: string;
+  NodeType?: string;
+  OperandDefinitionRef?: string;
+  OperandParameters?: INodeDataForAppSaving[];
+  ParentGuid?: string;
+  IsCustomNode?: boolean;
+  Description?: string;
+  ComplexMathExpression?: string;
+  Data?: string;
+}
+interface INodeDataForAppReading {
+  Guid?: string;
+  FollowId?: string;
+  NodeType?: string;
+  OperandDefinitionRef?: {
+    CollectionGuid?: string;
+  };
+  OperandParameters?: INodeDataForAppReading[];
+  ParentGuid?: string;
+  IsCustomNode?: boolean;
+  Description?: string;
+  ComplexMathExpression?: string;
+  Data?: string;
+}
 
 export class CustomDefinedComplexServiceNodeProvider {
 
-    private static m_CustomDefinedComplexServiceNodes: ICustomDefinedComplexServiceNode[] = [
-      {
-        Guid: "62f49dc0-391b-11ea-8d0f-797890298d4d",
-        Id: "1",
-        NodeTypeRef: "8e74fac0-391c-11ea-8d0f-797890298d4d",
-        OperandTypeRef: "b7d11c30-4044-11ea-8cc9-6d4f591fd4bf",
-        Description: "Test Plus operand",
-        IsCustomNode: true,
-        ActiveCd: "A",
-        Data: "«2»+«3»",
-        ComplexMathExpression: "«2»+7",
-      },
-      {
-        Guid: "f97906a0-391b-11ea-8d0f-797890298d4d",
-        Id: "2",
-        NodeTypeRef: "cf7f85d0-391c-11ea-8d0f-797890298d4d",
-        ParentGuidRef: "62f49dc0-391b-11ea-8d0f-797890298d4d",
-        Description: "Test Data 1",
-        IsCustomNode: true,
-        ActiveCd: "A",
-        Data: "5",
-        ComplexMathExpression: "5",
-        ParameterOrder: 1,
-      },
-      {
-        Guid: "2ebf06c0-391c-11ea-8d0f-797890298d4d",
-        Id: "3",
-        NodeTypeRef: "cf7f85d0-391c-11ea-8d0f-797890298d4d",
-        ParentGuidRef: "62f49dc0-391b-11ea-8d0f-797890298d4d",
-        Description: "Test Data 2",
-        IsCustomNode: false,
-        ActiveCd: "A",
-        Data: "7",
-        ComplexMathExpression: "7",
-        ParameterOrder: 2,
-      },
-      {
-        Guid: "485ba740-3b75-11ea-b2ff-094d6390ec09",
-        Id: "4",
-        NodeTypeRef: "8e74fac0-391c-11ea-8d0f-797890298d4d",
-        OperandTypeRef: "c3438f80-4044-11ea-8cc9-6d4f591fd4bf",
-        Description: "Müşteri tipine göre meslek uygun mu?",
-        IsCustomNode: true,
-        ActiveCd: "A",
-        Data: "«7» in «6»",
-        ComplexMathExpression: "«7» in «6»",
-      },
-      {
-        Guid: "ed7aec90-3b75-11ea-b2ff-094d6390ec09",
-        Id: "5",
-        NodeTypeRef: "cf7f85d0-391c-11ea-8d0f-797890298d4d",
-        ParentGuidRef: undefined,
-        Description: "Müşteri tipi.",
-        IsCustomNode: true,
-        Data: "#1",
-        ComplexMathExpression: "#1",
-        ActiveCd: "A",
-      },
-      {
-        Guid: "f4f8a610-3b75-11ea-b2ff-094d6390ec09",
-        Id: "6",
-        NodeTypeRef: "cf7f85d0-391c-11ea-8d0f-797890298d4d",
-        ParentGuidRef: "485ba740-3b75-11ea-b2ff-094d6390ec09",
-        Description: "Müşteri tipine göre uygun olmayan meslekler.",
-        IsCustomNode: true,
-        Data: "#2",
-        ComplexMathExpression: "#2",
-        ActiveCd: "A",
-        ParameterOrder: 2,
-      },
-      {
-        Guid: "485353c0-3b7e-11ea-a91b-2d1fe1232b04",
-        Id: "7",
-        NodeTypeRef: "cf7f85d0-391c-11ea-8d0f-797890298d4d",
-        ParentGuidRef: "485ba740-3b75-11ea-b2ff-094d6390ec09",
-        Description: "Müşteri mesleği.",
-        IsCustomNode: true,
-        Data: "#3",
-        ComplexMathExpression: "#3",
-        ActiveCd: "A",
-        ParameterOrder: 1,
-      },
-    ];
-
     /** Gets all nodes. Use just for test. */
     async GetAllCustomDefinedComplexServiceNodes (): Promise<IMathNode[] | undefined> {
-      return new Promise<IMathNode[] | undefined>((resolve, reject) => {
-        try {
-          const customDefinedNode = CustomDefinedComplexServiceNodeProvider.m_CustomDefinedComplexServiceNodes.filter((o) => {
-            return o.IsCustomNode === true && o.ActiveCd === "A";
-          }).map((o) => {
-            const node = this.convertTableRowsToMathNodes(o);
-            return node!;
-          });
-          return resolve(customDefinedNode);
-        } catch (error) {
-          return reject(error);
-        }
+      const responseForParent = await axios.get(`http://localhost:8080/DefinedComplexMathNodes`);
+      const readedParentNodes: INodeDataForAppReading[] = responseForParent.data;
+      readedParentNodes.forEach(async (readedParentNode) => {
+        await this.readChildrenNodes(readedParentNode);
       });
+      const convertedNodes: IMathNode[] = [];
+      readedParentNodes.forEach(async (readedParentNode) => {
+        const convertedNode = await this.convertNodesForReading(readedParentNode);
+        convertedNodes.add(convertedNode!);
+      });
+      console.log(convertedNodes);
+      return convertedNodes;
     }
-    async GetCustomDefinedComplexServiceNode (nodeId?: string, dataServiceId?: string, customDataService?: ICustomDataService): Promise<IMathNode | undefined> {
-      return new Promise<IMathNode | undefined>(async (resolve, reject) => {
-        try {
-          const tableRow = CustomDefinedComplexServiceNodeProvider.m_CustomDefinedComplexServiceNodes.find((o) => {
-            if (nodeId != null) {
-              return o.Id === nodeId && o.ActiveCd === "A";
-            } else if (dataServiceId != null) {
-              return o.Data === `#${dataServiceId}` && o.ActiveCd === "A";
-            }
-            return false;
-          });
-          let node: IMathNode | undefined;
-          if (tableRow != null) {
-            node = this.convertTableRowsToMathNodes(tableRow, customDataService);
-          }
-          return resolve(node);
-        } catch (error) {
-          return reject(error);
-        }
-      });
+    async GetCustomDefinedComplexServiceNode (nodeId: string, customDataService?: ICustomDataService): Promise<IMathNode | undefined> {
+      const responseForParent = await axios.get(`http://localhost:8080/DefinedComplexMathNodes/ById/${nodeId}`);
+      const readedParentNode: INodeDataForAppReading = responseForParent.data;
+      await this.readChildrenNodes(readedParentNode);
+      return this.convertNodesForReading(readedParentNode);
     }
     async SaveCustomDefinedCompexServiceNodes (node: IMathNode, parentNode?: IMathNode): Promise<void> {
-      return new Promise<void>(async (resolve, reject) => {
-        try {
-          const nodeToBeUpdate = CustomDefinedComplexServiceNodeProvider.m_CustomDefinedComplexServiceNodes.find((o) => {
-            return o.Id === node.Id && o.ActiveCd === "A";
-          });
-          if (nodeToBeUpdate != null) {
-            await this.DeleteCustomDefinedComplexServiceNode(node);
-          }
-          const table = this.convertMathNodesToTable(node, parentNode);
-          CustomDefinedComplexServiceNodeProvider.m_CustomDefinedComplexServiceNodes.addRange(table);
-          return resolve();
-        } catch (error) {
-          return reject(error);
-        }
-      });
+      const nodeDataToSave = this.convertNodesForSaving(node, parentNode);
+      const response = await axios.post("http://localhost:8080/DefinedComplexMathNodes", nodeDataToSave);
+      console.log(response);
     }
-    async DeleteCustomDefinedComplexServiceNode (node: IMathNode): Promise<void> {
-      return new Promise<void>(async (resolve, reject) => {
-        try {
-          const nodeToBeUpdate = CustomDefinedComplexServiceNodeProvider.m_CustomDefinedComplexServiceNodes.find((o) => {
-            return o.Id  === node.Id && o.ActiveCd === "A";
-          });
-          if (nodeToBeUpdate != null) {
-            nodeToBeUpdate.ActiveCd = "I";
-            if (node.OperandParameters != null) {
-              node.OperandParameters.forEach(async (o) => {
-                await this.DeleteCustomDefinedComplexServiceNode(o);
-              });
-            }
-          }
-          return resolve();
-        } catch (error) {
-          return reject(error);
-        }
-      });
-    }
-
-    private convertMathNodesToTable (node: IMathNode, parentNode?: IMathNode): ICustomDefinedComplexServiceNode[] {
-      const table: ICustomDefinedComplexServiceNode[] = [];
-      let tableRow = CustomDefinedComplexServiceNodeProvider.m_CustomDefinedComplexServiceNodes.find((o) => {
-        return o.Id === node.Id && o.ActiveCd === "A";
-      });
-      if (tableRow == null) {
-        const mathNodeTypeProvider = new MathNodeTypeProvider();
-        const nodeType = mathNodeTypeProvider.GetMathNodeType(undefined, node.EnumMathNodeType);
-        let operandType: IOperandType | undefined;
-        if (node.Operand != null) {
-          const operandTypeProvider = new OperandTypeProvider();
-          operandType = operandTypeProvider.GetOperandType(undefined, node.Operand.EnumOperandType);
-        }
-        const newGuid = GuidProvider.GetGuid();
-        tableRow = {
-          Guid: newGuid,
-          Id: node.Id,
-          ParentGuidRef: parentNode != null ? parentNode.Guid : undefined,
-          Data: node.ComplexMathExpression,
-          NodeTypeRef: nodeType != null ? nodeType.Guid : "",
-          ActiveCd: "A",
-          IsCustomNode: node.IsCustomNode,
-          OperandTypeRef: operandType != null ? operandType.Guid : undefined,
-          Description: node.Description,
-          ParameterOrder: parentNode != null ? parentNode.OperandParameters!.findIndex((o) => {
-            return o.Guid === node.Guid;
-          }) : 1,
-          ComplexMathExpression: node.ComplexMathExpression,
-        };
-        table.push(tableRow);
-        if (node.OperandParameters != null) {
-          node.OperandParameters.forEach((child) => {
-            const children = this.convertMathNodesToTable(child, node);
-            table.addRange(children);
-          });
-        }
+    private convertNodesForSaving(node: IMathNode, parentNode?: IMathNode) {
+      const dataToSave: INodeDataForAppSaving = {
+        Guid: node.Guid,
+        FollowId: node.Id,
+        NodeType: node.EnumMathNodeType === EnumMathNodeType.Data ? "D" : "O",
+        OperandDefinitionRef: node.Operand != null ? node.Operand.Guid : undefined,
+        ParentGuid: parentNode != null ? parentNode.Guid : undefined,
+        IsCustomNode: node.IsCustomNode,
+        Description: node.Description,
+        ComplexMathExpression: node.ComplexMathExpression,
+        Data: node.ComplexMathExpression,
+      };
+      if (node.OperandParameters != null && node.OperandParameters.length > 0) {
+        dataToSave.OperandParameters = [];
+        node.OperandParameters.forEach((operandParameter) => {
+          dataToSave.OperandParameters!.add(this.convertNodesForSaving(operandParameter, node));
+        });
       }
-      return table;
+      return dataToSave;
     }
-    private convertTableRowsToMathNodes (tableRow: ICustomDefinedComplexServiceNode, customDataService?: ICustomDataService, parentNode?: IMathNode): IMathNode | undefined {
+    private async convertNodesForReading(appNode: INodeDataForAppReading, parentNode?: IMathNode, customDataService?: ICustomDataService) {
       let operandDefinition: IOperandDefinition | undefined;
-      if (tableRow.OperandTypeRef != null) {
-        const operandTypeProvider = new OperandTypeProvider();
-        const operandType = operandTypeProvider.GetOperandType(tableRow.OperandTypeRef)!;
-        const enumKeyOfOperandType = <keyof typeof EnumOperandType> operandType.EnumKey;
-        const enumOperandType = EnumOperandType[enumKeyOfOperandType];
+      if (appNode.OperandDefinitionRef != null) {
         const currentOperandDefinitionsProvider = new CurrentOperandDefinitionsProvider();
-        operandDefinition = currentOperandDefinitionsProvider.GetOperandDefinition(undefined, enumOperandType);
+        operandDefinition = await currentOperandDefinitionsProvider.GetOperandDefinition(appNode.OperandDefinitionRef.CollectionGuid);  
       }
-      const mathNodeTypeProvider = new MathNodeTypeProvider();
-      const mathNodeType = mathNodeTypeProvider.GetMathNodeType(tableRow.NodeTypeRef!)!;
-      const enumKeyOfMathNodeType = <keyof typeof EnumMathNodeType> mathNodeType.EnumKey;
-      const enumMathNodeType = EnumMathNodeType[enumKeyOfMathNodeType];
+
       const mathNodeCreatorProps: Partial<IMathNodeCreatorProps> = {
-        Guid: tableRow.Guid,
-        Id: tableRow.Id,
-        EnumMathNodeType: enumMathNodeType,
+        Guid: appNode.Guid,
+        Id: appNode.FollowId,
+        EnumMathNodeType: appNode.NodeType === "D" ? EnumMathNodeType.Data : EnumMathNodeType.Operand,
         EnumOperandType: operandDefinition != null ? operandDefinition.EnumOperandType : undefined,
         ParentNode: parentNode,
-        Operand: operandDefinition,
-        Data: tableRow.Data,
-        Description: tableRow.Description,
-        IsCustomNode: tableRow.IsCustomNode,
+        Data: appNode.Data,
+        Description: appNode.Description,
+        IsCustomNode: appNode.IsCustomNode,
         CustomDataService: customDataService,
-        ComplexMathExpression: tableRow.ComplexMathExpression,
+        ComplexMathExpression: appNode.ComplexMathExpression,
       };
-      const createdNode = MathNodeOptions.CreateMathNode(mathNodeCreatorProps);
-      if (createdNode != null) {
-        const children = CustomDefinedComplexServiceNodeProvider.m_CustomDefinedComplexServiceNodes.filter((o) => {
-          return o.ParentGuidRef === createdNode.Guid;
-        }).sort((a, b) => {
-          if (a.ParameterOrder != null && b.ParameterOrder != null) {
-            return a.ParameterOrder - b.ParameterOrder;
-          }
-          return 0;
-        });
-        children.forEach((child) => {
-          const createdChildNode = this.convertTableRowsToMathNodes(child, customDataService, createdNode);
-            createdNode.OperandParameters!.add(createdChildNode!);
+      const createdNode = await MathNodeOptions.CreateMathNode(mathNodeCreatorProps);
+      if (appNode.OperandParameters != null && appNode.OperandParameters.count > 0) {
+        createdNode!.OperandParameters = [];
+        appNode.OperandParameters.forEach(async (operandParameter) => {
+          const createdChild = await this.convertNodesForReading(operandParameter, createdNode, customDataService);
+          createdNode!.OperandParameters!.add(createdChild!);
         });
       }
       return createdNode;
     }
+    private async readChildrenNodes(appNode: INodeDataForAppReading) {
+      const responseForChildren = await axios.get(`http://localhost:8080/DefinedComplexMathNodes/ByParentGuid/${appNode.Guid}`);
+      const readedChildrenNodes = responseForChildren.data as INodeDataForAppReading[];
+      if (readedChildrenNodes != null && readedChildrenNodes.length > 0) {
+        appNode.OperandParameters = [];
+        readedChildrenNodes.forEach(async (readedChildNode) => {
+          appNode.OperandParameters!.add(readedChildNode);
+          await this.readChildrenNodes(readedChildNode)
+        });
+      }
+    }
+    
 
 }

@@ -3,5 +3,5 @@ export interface ICustomDefinedDataServiceNode {
     DataKey?: string;
     Description?: string;
     Guid?: string;
-    Id?: string;
+    FollowId?: string;
 }

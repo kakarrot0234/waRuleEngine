@@ -1,3 +1,4 @@
+import { CurrentOperandDefinitionsProvider } from "../dataProviders/CurrentOperandDefinitionsProvider";
 import { GuidProvider } from "../dataProviders/GuidProvider";
 import { IdProvider } from "../dataProviders/IdProvider";
 import { EnumMathNodeType } from "../enums/EnumMathNodeType";
@@ -20,7 +21,7 @@ import { StringOptions } from "./StringOptions";
 
 export class MathNodeOptions {
 
-  static CreateMathNode (props: Partial<IMathNodeCreatorProps>): IMathNode | undefined {
+  static async CreateMathNode (props: Partial<IMathNodeCreatorProps>): Promise<IMathNode | undefined> {
     if (StringOptions.isNullOrEmpty(props.Guid)) {
       props.Guid = GuidProvider.GetGuid();
     }
@@ -32,26 +33,37 @@ export class MathNodeOptions {
       if (props.EnumOperandType != null) {
         switch (props.EnumOperandType) {
         case EnumOperandType.Plus:
+          props.Operand = await MathNodeOptions.findOperandDefinition(EnumOperandType.Plus);
           return new MathNodePlus(props);
         case EnumOperandType.Minus:
+          props.Operand = await MathNodeOptions.findOperandDefinition(EnumOperandType.Minus);
           return new MathNodeMinus(props);
         case EnumOperandType.Multiply:
+          props.Operand = await MathNodeOptions.findOperandDefinition(EnumOperandType.Multiply);
           return new MathNodeMultiply(props);
         case EnumOperandType.LogicalAnd:
+          props.Operand = await MathNodeOptions.findOperandDefinition(EnumOperandType.LogicalAnd);
           return new MathNodeLogicalAnd(props);
         case EnumOperandType.LogicalOr:
+          props.Operand = await MathNodeOptions.findOperandDefinition(EnumOperandType.LogicalOr);
           return new MathNodeLogicalOr(props);
         case EnumOperandType.LogicalNot:
+          props.Operand = await MathNodeOptions.findOperandDefinition(EnumOperandType.LogicalNot);
           return new MathNodeLogicalNot(props);
         case EnumOperandType.Divide:
+          props.Operand = await MathNodeOptions.findOperandDefinition(EnumOperandType.Divide);
           return new MathNodeDivide(props);
         case EnumOperandType.Exponentiation:
+          props.Operand = await MathNodeOptions.findOperandDefinition(EnumOperandType.Exponentiation);
           return new MathNodeExponentiation(props);
         case EnumOperandType.Remainder:
+          props.Operand = await MathNodeOptions.findOperandDefinition(EnumOperandType.Remainder);
           return new MathNodeRemainder(props);
         case EnumOperandType.In:
+          props.Operand = await MathNodeOptions.findOperandDefinition(EnumOperandType.In);
           return new MathNodeIn(props);
         case EnumOperandType.NotIn:
+          props.Operand = await MathNodeOptions.findOperandDefinition(EnumOperandType.NotIn);
           return new MathNodeNotIn(props);
         default:
           return undefined;
@@ -93,6 +105,10 @@ export class MathNodeOptions {
       }
     }
     return acceptableData;
+  }
+  private static async findOperandDefinition(enumOperandType: EnumOperandType) {
+    const operandDef = await new CurrentOperandDefinitionsProvider().GetOperandDefinition(undefined, enumOperandType);
+    return operandDef;
   }
 
 };

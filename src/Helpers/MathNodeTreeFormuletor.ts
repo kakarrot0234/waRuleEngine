@@ -54,8 +54,9 @@ export class MathNodeTreeFormuletor {
   private async convertMathExpressionToTree (expression: string, parentMathNode?: IMathNode): Promise<IMathNode | undefined> {
     return new Promise<IMathNode | undefined>(async (resolve, reject) => {
       try {
-        const operandsToLookFor = this.findOperandsToLookFor(expression);
-        this.simplifyFormule(expression, operandsToLookFor);
+        const allOperands = await new CurrentOperandDefinitionsProvider().GetAllOperandDefinitions();
+        const operandsToLookFor = this.findOperandsToLookFor(expression, allOperands);
+        this.simplifyFormule(expression, operandsToLookFor, allOperands);
         const rootBinaryNodeRoot = this.m_WrappedSearchResult[this.m_WrappedSearchResult.length - 1];
         let ruleNodeRoot: IMathNode | undefined;
         if (rootBinaryNodeRoot != null) {
@@ -67,9 +68,9 @@ export class MathNodeTreeFormuletor {
       }
     });
   }
-  private findOperandsToLookFor (expression: string) {
+  private findOperandsToLookFor (expression: string, allOperands: IOperandDefinition[]) {
     const operandsToLookFor: string[] = [];
-    const allOperandDefs = new CurrentOperandDefinitionsProvider().OperandDefinitions.sort((a, b) => {
+    const allOperandDefs = allOperands.sort((a, b) => {
       return b.Key.length - a.Key.length;
     });
     allOperandDefs.forEach((operandDef) => {
@@ -83,9 +84,9 @@ export class MathNodeTreeFormuletor {
 
     return operandsToLookFor;
   }
-  private simplifyFormule (expression: string, operandsToLookFor: string[]) {
+  private async simplifyFormule (expression: string, operandsToLookFor: string[], allOperands: IOperandDefinition[]) {
     let expressionLast = expression;
-    const orderedOperands = new CurrentOperandDefinitionsProvider().OperandDefinitions.filter((o) => {
+    const orderedOperands = allOperands.filter((o) => {
       return operandsToLookFor.indexOf(o.Key) >= 0;
     }).sort((a, b) => {
       return a.Precedence - b.Precedence;
@@ -196,10 +197,11 @@ export class MathNodeTreeFormuletor {
               EnumOperandType: binaryNode.Operand.EnumOperandType,
               ParentNode: parentMathNode,
               Data: binaryNode.Data,
+              ComplexMathExpression: binaryNode.Data,
               IsCustomNode: binaryNode.IsCustomNode,
               Description: binaryNode.Description,
             };
-            mathNode = MathNodeOptions.CreateMathNode(mathNodeCreatorProps)!;
+            mathNode = await MathNodeOptions.CreateMathNode(mathNodeCreatorProps)!;
 
             if (mathNode != null) {
               if (binaryNode.LeftData != null) {
@@ -254,10 +256,11 @@ export class MathNodeTreeFormuletor {
           EnumMathNodeType: EnumMathNodeType.Data,
           ParentNode: parentMathNode,
           Data: data,
+          ComplexMathExpression: typeofData === "string" ? data : data.toString(),
           IsCustomNode: false,
           Description: description,
         };
-        mathNode = MathNodeOptions.CreateMathNode(mathNodeCreatorProps);
+        mathNode = await MathNodeOptions.CreateMathNode(mathNodeCreatorProps);
         return resolve(mathNode);
       } catch (error) {
         return reject(error);
