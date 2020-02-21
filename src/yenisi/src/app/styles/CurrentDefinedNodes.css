@@ -1,0 +1,50 @@
+.current-defined-nodes-root {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    column-gap: 10px;
+    row-gap: 5px;
+}
+
+.current-defined-nodes-root .math-nodes::before {
+    content: 'Current Complex Math Nodes';
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
+    font-weight: bold;
+}
+
+.current-defined-nodes-root .math-nodes {
+    display: grid;
+    grid-template-columns: 1fr;
+    column-gap: 10px;
+    row-gap: 5px;
+}
+
+.current-defined-nodes-root .math-node-editor::before {
+    content: 'Current Custom Data Service Nodes';
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
+    font-weight: bold;
+}
+
+.current-defined-nodes-root .math-node-editor {
+    display: grid;
+    grid-template-columns: 1fr;
+    column-gap: 10px;
+    row-gap: 5px;
+}
+
+@media (max-width: 768px) {
+    .current-defined-nodes-root {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .current-defined-nodes-root {
+        grid-template-columns: 1fr;
+    }
+}
