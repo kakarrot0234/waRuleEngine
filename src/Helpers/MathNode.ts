@@ -17,6 +17,7 @@ export abstract class MathNode implements IMathNode {
     this.ParentNode = props.ParentNode;
     this.EnumMathNodeType = props.EnumMathNodeType;
     this.ComplexMathExpression = props.ComplexMathExpression != null ? props.ComplexMathExpression : "";
+    this.SimpleMathExpression = props.SimpleMathExpression;
   }
 
     public Guid: string | undefined;
@@ -32,6 +33,7 @@ export abstract class MathNode implements IMathNode {
     public Description: string | undefined;
     public EnumMathNodeType: EnumMathNodeType | undefined;
     public ComplexMathExpression: string | undefined;
+    public SimpleMathExpression: string | undefined;
 
     public IsValid (): IIsValidResult {
       return { IsValid: true, };

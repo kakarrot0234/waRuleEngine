@@ -28,14 +28,14 @@ export class CustomDefinedDataServiceNodeProvider {
     }
     async SaveCustomDefinedDataServiceNodes (node: ICustomDefinedDataServiceNode) {
       const dataServiceNode: ICustomDefinedDataServiceNode = {
-        FollowId: node.FollowId != null ? node.FollowId : IdProvider.GetNewDataServiceNodeId(),
+        FollowId: node.FollowId != null ? node.FollowId : await IdProvider.GetNewDataServiceNodeId(),
         Guid: node.Guid != null ? node.Guid : GuidProvider.GetGuid(),
         DataKey: node.DataKey,
         Description: node.Description,
         ActiveCd: node.ActiveCd,
       };
       const result = await axios.post("http://localhost:8080/DefinedDataServiceMathNodes", dataServiceNode);
-      return result;
+      return result.data as ICustomDefinedDataServiceNode;
     }
 
 }

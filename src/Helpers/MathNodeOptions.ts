@@ -26,7 +26,7 @@ export class MathNodeOptions {
       props.Guid = GuidProvider.GetGuid();
     }
     if (StringOptions.isNullOrEmpty(props.Id)) {
-      props.Id = IdProvider.GetNewMathNodeId().toString();
+      props.Id = await IdProvider.GetNewComplexMathNodeId();
     }
 
     if (props.EnumMathNodeType === EnumMathNodeType.Operand) {

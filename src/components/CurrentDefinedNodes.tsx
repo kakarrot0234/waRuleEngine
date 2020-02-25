@@ -220,29 +220,37 @@ export function CurrentDefinedNodes (props: ICurrentDefinedNodesProps) {
     }
   }
   async function addDataServiceNode (): Promise<void> {
-    return new Promise<void>(async (resolve, reject) => {
-      try {
-        const nodeToBeAdd = state.EditingDataServiceNode;
-        if (nodeToBeAdd != null) {
-          const dataServiceNodeProvider = new CustomDefinedDataServiceNodeProvider();
-          await dataServiceNodeProvider.SaveCustomDefinedDataServiceNodes({
-            ...nodeToBeAdd,
-            Guid: undefined,
-            FollowId: undefined,
-            ActiveCd: "A",
-          });
-          const newNodes = await dataServiceNodeProvider.GetAllCustomDefinedDataServiceNodes();
-          setState((previousState) => {
-            return {
-              ...previousState,
-              DataServiceNodes: newNodes,
-            };
-          });
-        }
-        return resolve();
-      } catch (error) {
-        return reject(error);
+    const nodeToBeAdd = state.EditingDataServiceNode;
+    if (nodeToBeAdd != null) {
+      const dataServiceNodeProvider = new CustomDefinedDataServiceNodeProvider();
+      const addedDataServiceNode = await dataServiceNodeProvider.SaveCustomDefinedDataServiceNodes({
+        ...nodeToBeAdd,
+        Guid: undefined,
+        FollowId: undefined,
+        ActiveCd: "A",
+      });
+
+      const formuletor = new MathNodeTreeFormuletor();
+      const createdNode = await formuletor.CreateMathNode(`#${addedDataServiceNode.FollowId}`, nodeToBeAdd.Description);
+      if (createdNode != null) {
+        const serviceNodeProvider = new CustomDefinedComplexServiceNodeProvider();
+        await serviceNodeProvider.SaveCustomDefinedCompexServiceNodes(createdNode);
       }
+
+      await refreshNodes();
+    }
+  }
+  async function refreshNodes () {
+    const currentNodeProvider = new CustomDefinedComplexServiceNodeProvider();
+    const newComplexMathNodes = await currentNodeProvider.GetAllCustomDefinedComplexServiceNodes();
+    const dataServiceNodeProvider = new CustomDefinedDataServiceNodeProvider();
+    const newDataServiceNodes = await dataServiceNodeProvider.GetAllCustomDefinedDataServiceNodes();
+    setState((previousState) => {
+      return {
+        ...previousState,
+        MathNodes: newComplexMathNodes,
+        DataServiceNodes: newDataServiceNodes,
+      };
     });
   }
 

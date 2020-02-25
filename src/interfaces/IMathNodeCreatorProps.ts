@@ -17,4 +17,5 @@ export interface IMathNodeCreatorProps {
   Operand?: IOperandDefinition;
   ParentNode?: IMathNode;
   ComplexMathExpression?: string;
+  SimpleMathExpression?: string;
 }

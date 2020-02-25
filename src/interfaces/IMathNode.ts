@@ -19,4 +19,5 @@ export interface IMathNode {
     FindResultData?(): Promise<void>;
     Description?: string;
     ComplexMathExpression?: string;
+    SimpleMathExpression?: string;
 }

@@ -8,9 +8,9 @@ export interface IOperandDefinition {
     EnumOperandType?: EnumOperandType;
     IsGrouping?: boolean;
     Direction?: EnumOperandDirection;
-    ThereIsLeftParameter: boolean;
-    ThereIsRighParameter: boolean;
+    ParameterCount?: number;
     Description: string;
     OperandRegexStr: string;
     OperandParRegexStr: string;
+    KeysForComplexConversion?: (string | number)[];
 }

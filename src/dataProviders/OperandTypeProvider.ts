@@ -1,32 +1,29 @@
+import axios from "axios";
+
 import { EnumOperandType } from "../enums/EnumOperandType";
 import { IOperandType } from "../interfaces/IOperandType";
 
 export class OperandTypeProvider {
 
-    private static m_CurrentOperandTypes: IOperandType[] = [
-      {
-        Guid: "b7d11c30-4044-11ea-8cc9-6d4f591fd4bf",
-        EnumKey: "Plus",
-      },
-      {
-        Guid: "c3438f80-4044-11ea-8cc9-6d4f591fd4bf",
-        EnumKey: "In",
-      },
-    ];
-
-    GetAllOperandTypes () : IOperandType[] {
-      return OperandTypeProvider.m_CurrentOperandTypes;
+    async GetAllOperandTypes () {
+      const response = await axios.get("http://localhost:8080/OperandTypes");
+      const operandTypes = response.data as IOperandType[];
+      return operandTypes;
     };
-    GetOperandType (guid?: string, enumOperandType?: EnumOperandType): IOperandType | undefined {
+    async GetOperandType (guid?: string, enumOperandType?: EnumOperandType) {
       let operandType: IOperandType | undefined;
       if (guid != null) {
-        operandType = OperandTypeProvider.m_CurrentOperandTypes.find((o) => {
-          return o.Guid === guid;
-        });
+        const response = await axios.get(`http://localhost:8080/OperandTypes/ByGuid/${guid}`);
+        const operandTypes = response.data as IOperandType[];
+        if (operandTypes != null && operandTypes.length > 0) {
+          operandType = operandTypes[0];
+        }
       } else if (enumOperandType != null) {
-        operandType = OperandTypeProvider.m_CurrentOperandTypes.find((o) => {
-          return o.EnumKey === EnumOperandType[enumOperandType];
-        });
+        const response = await axios.get(`http://localhost:8080/OperandTypes/ByEnumKey/${EnumOperandType[enumOperandType]}`);
+        const operandTypes = response.data as IOperandType[];
+        if (operandTypes != null && operandTypes.length > 0) {
+          operandType = operandTypes[0];
+        }
       }
       return operandType;
     }

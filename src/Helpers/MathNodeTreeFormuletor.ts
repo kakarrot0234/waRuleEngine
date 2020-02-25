@@ -3,7 +3,7 @@ import { CustomDefinedComplexServiceNodeProvider } from "../dataProviders/Custom
 import { IdProvider } from "../dataProviders/IdProvider";
 import { EnumMathNodeType } from "../enums/EnumMathNodeType";
 import { EnumOperandDirection } from "../enums/EnumOperandDirection";
-import { IBinaryTreeNode } from "../interfaces/IBinaryTreeNode";
+import { IGeneralTree } from "../interfaces/IGeneralTreeNode";
 import { IMathNode } from "../interfaces/IMathNode";
 import { IMathNodeCreatorProps } from "../interfaces/IMathNodeCreatorProps";
 import { IOperandDefinition } from "../interfaces/IOperandDefinition";
@@ -11,62 +11,44 @@ import { MathNodeOptions } from "./MathNodeOptions";
 
 export class MathNodeTreeFormuletor {
 
-  private m_WrappedSearchResult: IBinaryTreeNode[] = [];
+  private m_WrappedSearchResult: IGeneralTree[] = [];
 
-  public async CreateMathNode (expression: string, description?: string): Promise<IMathNode | undefined> {
-    return new Promise<IMathNode | undefined>(async (resolve, reject) => {
-      try {
-        const node = await this.convertMathExpressionToTree(expression);
-        if (node != null) {
-          node.IsCustomNode = true;
-          node.Description = description;
-          node.ComplexMathExpression = this.getComplexMathNodeExpresstion(node);
-        }
-        return resolve(node);
-      } catch (error) {
-        return reject(error);
-      }
-    });
+  public async CreateMathNode (expression: string, description?: string) {
+    const node = await this.convertMathExpressionToTree(expression);
+    if (node != null) {
+      node.IsCustomNode = true;
+      node.Description = description;
+      node.ComplexMathExpression = this.getComplexMathNodeExpresstion(node);
+    }
+    return node;
   }
-  public async UpdateMathNode (nodeToBeUpdate: IMathNode, newMathDefinition?: string, newDescription?: string): Promise<IMathNode | undefined> {
-    return new Promise<IMathNode | undefined>(async (resolve, reject) => {
-      try {
-        let updatedNode: IMathNode | undefined;
-        if (newMathDefinition != null && nodeToBeUpdate.ComplexMathExpression !== newMathDefinition) {
-          updatedNode = await this.convertMathExpressionToTree(newMathDefinition, nodeToBeUpdate.ParentNode);
-          if (updatedNode != null) {
-            updatedNode.Id = nodeToBeUpdate.Id;
-            updatedNode.IsCustomNode = nodeToBeUpdate.IsCustomNode;
-            updatedNode.ComplexMathExpression = this.getComplexMathNodeExpresstion(updatedNode);
-          }
-        } else {
-          updatedNode = { ...nodeToBeUpdate, };
-        }
-        if (updatedNode != null) {
-          updatedNode.Description = newDescription;
-        }
-        return resolve(updatedNode);
-      } catch (error) {
-        return reject(error);
+  public async UpdateMathNode (nodeToBeUpdate: IMathNode, newMathDefinition?: string, newDescription?: string) {
+    let updatedNode: IMathNode | undefined;
+    if (newMathDefinition != null && nodeToBeUpdate.ComplexMathExpression !== newMathDefinition) {
+      updatedNode = await this.convertMathExpressionToTree(newMathDefinition, nodeToBeUpdate.ParentNode);
+      if (updatedNode != null) {
+        updatedNode.Id = nodeToBeUpdate.Id;
+        updatedNode.IsCustomNode = nodeToBeUpdate.IsCustomNode;
+        updatedNode.ComplexMathExpression = this.getComplexMathNodeExpresstion(updatedNode);
       }
-    });
+    } else {
+      updatedNode = { ...nodeToBeUpdate, };
+    }
+    if (updatedNode != null) {
+      updatedNode.Description = newDescription;
+    }
+    return updatedNode;
   }
-  private async convertMathExpressionToTree (expression: string, parentMathNode?: IMathNode): Promise<IMathNode | undefined> {
-    return new Promise<IMathNode | undefined>(async (resolve, reject) => {
-      try {
-        const allOperands = await new CurrentOperandDefinitionsProvider().GetAllOperandDefinitions();
-        const operandsToLookFor = this.findOperandsToLookFor(expression, allOperands);
-        this.simplifyFormule(expression, operandsToLookFor, allOperands);
-        const rootBinaryNodeRoot = this.m_WrappedSearchResult[this.m_WrappedSearchResult.length - 1];
-        let ruleNodeRoot: IMathNode | undefined;
-        if (rootBinaryNodeRoot != null) {
-          ruleNodeRoot = await this.createBinaryTree(rootBinaryNodeRoot, parentMathNode);
-        }
-        return resolve(ruleNodeRoot);
-      } catch (error) {
-        return reject(error);
-      }
-    });
+  private async convertMathExpressionToTree (expression: string, parentMathNode?: IMathNode) {
+    const allOperands = await new CurrentOperandDefinitionsProvider().GetAllOperandDefinitions();
+    const operandsToLookFor = this.findOperandsToLookFor(expression, allOperands);
+    await this.simplifyFormule(expression, operandsToLookFor, allOperands);
+    const rootBinaryNodeRoot = this.m_WrappedSearchResult[this.m_WrappedSearchResult.length - 1];
+    let ruleNodeRoot: IMathNode | undefined;
+    if (rootBinaryNodeRoot != null) {
+      ruleNodeRoot = await this.createBinaryTree(rootBinaryNodeRoot, parentMathNode);
+    }
+    return ruleNodeRoot;
   }
   private findOperandsToLookFor (expression: string, allOperands: IOperandDefinition[]) {
     const operandsToLookFor: string[] = [];
@@ -89,50 +71,51 @@ export class MathNodeTreeFormuletor {
     const orderedOperands = allOperands.filter((o) => {
       return operandsToLookFor.indexOf(o.Key) >= 0;
     }).sort((a, b) => {
+      if (a.Precedence === b.Precedence) {
+        return b.Key.length - a.Key.length;
+      }
       return a.Precedence - b.Precedence;
     });
 
     if (orderedOperands.length > 0) {
-      orderedOperands.forEach((operandToLookFor) => {
+      for (let index = 0; index < orderedOperands.length; index++) {
+        const operandToLookFor = orderedOperands[index];
         let success: boolean;
 
         do {
-          [ success, expressionLast, ] = this.findTreeNode(operandToLookFor, expressionLast);
+          [ success, expressionLast, ] = await this.findTreeNode(operandToLookFor, expressionLast);
         } while (success);
-      });
+      }
     } else {
-      const nodeId = this.createNodeId();
+      const nodeId = await this.createNodeId();
       this.m_WrappedSearchResult.add({ Id: nodeId, Data: expressionLast, });
     }
   }
-  private findTreeNode (operand: IOperandDefinition, expression: string): [boolean, string] {
+  private async findTreeNode (operand: IOperandDefinition, expression: string): Promise<[boolean, string]> {
     let expressionLast = expression;
     let success = false;
 
     if (operand.IsGrouping) {
-      [ success, expressionLast, ] = this.searchForGroup(operand, expressionLast);
+      [ success, expressionLast, ] = await this.searchForGroup(operand, expressionLast);
     } else {
       const regexStr = operand.OperandParRegexStr;
       const regex = new RegExp(regexStr, "gu");
       if (operand.Direction === EnumOperandDirection.LeftToRight) {
         const regexResult = regex.exec(expressionLast);
         if (regexResult != null) {
-          if (operand.ThereIsLeftParameter && operand.ThereIsRighParameter) {
-            const nodeId = this.createNodeId();
-            this.m_WrappedSearchResult.add({ Id: nodeId.toString(), Data: regexResult[0], Operand: operand, LeftData: regexResult[1], RightData: regexResult[2], });
-            expressionLast = expressionLast.replace(regex, `«${nodeId}»`);
-            success = true;
-          } else if (operand.ThereIsLeftParameter) {
-            const nodeId = this.createNodeId();
-            this.m_WrappedSearchResult.add({ Id: nodeId.toString(), Data: regexResult[0], Operand: operand, LeftData: regexResult[1], });
-            expressionLast = expressionLast.replace(regex, `«${nodeId}»`);
-            success = true;
-          } else if (operand.ThereIsRighParameter) {
-            const nodeId = this.createNodeId();
-            this.m_WrappedSearchResult.add({ Id: nodeId.toString(), Data: regexResult[0], Operand: operand, RightData: regexResult[1], });
-            expressionLast = expressionLast.replace(regex, `«${nodeId}»`);
-            success = true;
+          const nodeId = await this.createNodeId();
+          const addingWrappedSearchResult: IGeneralTree = {
+            Id: nodeId,
+            Data: regexResult[0],
+            Operand: operand,
+            ParDatas: [],
+          };
+          for (let index = 1; index <= operand.ParameterCount!; index++) {
+            addingWrappedSearchResult.ParDatas!.push(regexResult[index]);
           }
+          this.m_WrappedSearchResult.add(addingWrappedSearchResult);
+          expressionLast = expressionLast.replace(regex, `«${nodeId}»`);
+          success = true;
         }
       } else if (operand.Direction === EnumOperandDirection.RightToLeft) {
         let previousRegexResult: RegExpExecArray | null;
@@ -143,35 +126,32 @@ export class MathNodeTreeFormuletor {
         } while (currentRegexResult != null);
         if (previousRegexResult != null) {
           const regexResult = previousRegexResult;
-          if (operand.ThereIsLeftParameter && operand.ThereIsRighParameter) {
-            const nodeId = this.createNodeId();
-            this.m_WrappedSearchResult.add({ Id: nodeId.toString(), Data: regexResult[0], Operand: operand, LeftData: regexResult[1], RightData: regexResult[2], });
-            expressionLast = expressionLast.replace(regex, `«${nodeId}»`);
-            success = true;
-          } else if (operand.ThereIsLeftParameter) {
-            const nodeId = this.createNodeId();
-            this.m_WrappedSearchResult.add({ Id: nodeId.toString(), Data: regexResult[0], Operand: operand, LeftData: regexResult[1], });
-            expressionLast = expressionLast.replace(regex, `«${nodeId}»`);
-            success = true;
-          } else if (operand.ThereIsRighParameter) {
-            const nodeId = this.createNodeId();
-            this.m_WrappedSearchResult.add({ Id: nodeId.toString(), Data: regexResult[0], Operand: operand, RightData: regexResult[1], });
-            expressionLast = expressionLast.replace(regex, `«${nodeId}»`);
-            success = true;
+          const nodeId = await this.createNodeId();
+          const addingWrappedSearchResult: IGeneralTree = {
+            Id: nodeId,
+            Data: regexResult[0],
+            Operand: operand,
+            ParDatas: [],
+          };
+          for (let index = 1; index <= operand.ParameterCount!; index++) {
+            addingWrappedSearchResult.ParDatas!.push(regexResult[index]);
           }
+          this.m_WrappedSearchResult.add(addingWrappedSearchResult);
+          expressionLast = expressionLast.replace(regex, `«${nodeId}»`);
+          success = true;
         }
       }
     }
 
     return [ success, expressionLast, ];
   }
-  private searchForGroup (operand: IOperandDefinition, expression: string): [boolean, string] {
+  private async searchForGroup (operand: IOperandDefinition, expression: string): Promise<[boolean, string]> {
     const regex = new RegExp(`${operand.OperandParRegexStr}`, "gu");
     let expressionLast = expression;
     let regexResult = regex.exec(expressionLast);
 
     while (regexResult) {
-      const nodeId = this.createNodeId();
+      const nodeId = await this.createNodeId();
       this.m_WrappedSearchResult.add({ Id: nodeId, Data: regexResult[1], IsGrouping: true, });
       expressionLast = expressionLast.replace(regex, `«${nodeId}»`);
       regexResult = regex.exec(expressionLast);
@@ -179,93 +159,79 @@ export class MathNodeTreeFormuletor {
 
     return [ expression !== expressionLast, expressionLast, ];
   }
-  private createNodeId () {
-    return IdProvider.GetNewMathNodeId();
+  private async createNodeId () {
+    return await IdProvider.GetNewComplexMathNodeId();
   }
-  private async createBinaryTree (binaryNode: IBinaryTreeNode, parentMathNode?: IMathNode): Promise<IMathNode | undefined> {
-    return new Promise<IMathNode | undefined>(async (resolve, reject) => {
-      try {
-        let mathNode: IMathNode | undefined;
+  private async createBinaryTree (binaryNode: IGeneralTree, parentMathNode?: IMathNode): Promise<IMathNode | undefined> {
+    let mathNode: IMathNode | undefined;
 
-        if (binaryNode.IsGrouping != null && binaryNode.IsGrouping) {
-          mathNode = await new MathNodeTreeFormuletor().convertMathExpressionToTree(binaryNode.Data, parentMathNode);
-        } else {
-          if (binaryNode.Operand != null) {
-            const mathNodeCreatorProps: Partial<IMathNodeCreatorProps> = {
-              Id: binaryNode.Id,
-              EnumMathNodeType: EnumMathNodeType.Operand,
-              EnumOperandType: binaryNode.Operand.EnumOperandType,
-              ParentNode: parentMathNode,
-              Data: binaryNode.Data,
-              ComplexMathExpression: binaryNode.Data,
-              IsCustomNode: binaryNode.IsCustomNode,
-              Description: binaryNode.Description,
-            };
-            mathNode = await MathNodeOptions.CreateMathNode(mathNodeCreatorProps)!;
-
-            if (mathNode != null) {
-              if (binaryNode.LeftData != null) {
-                const leftNode = await this.nodeDataToMathNode(undefined, binaryNode.LeftData, undefined, mathNode);
-                mathNode.OperandParameters!.add(leftNode!);
-              }
-              if (binaryNode.RightData != null) {
-                const rightNode = await this.nodeDataToMathNode(undefined, binaryNode.RightData, undefined, mathNode);
-                mathNode.OperandParameters!.add(rightNode!);
-              }
-            }
-          } else {
-            mathNode = await this.nodeDataToMathNode(binaryNode.Id, binaryNode.Data, undefined, parentMathNode);
-          }
-        }
-
-        return resolve(mathNode);
-      } catch (error) {
-        return reject(error);
-      }
-    });
-  }
-  private async nodeDataToMathNode (mathNodeId: string | undefined, data: any, description?: string, parentMathNode?: IMathNode): Promise<IMathNode | undefined> {
-    return new Promise<IMathNode | undefined>(async (resolve, reject) => {
-      try {
-        let mathNode: IMathNode | undefined;
-        const typeofData = typeof data;
-
-        if (typeofData === "string") {
-          const regex = /^«(\w+)»$/gu;
-          const regexResult = regex.exec(data);
-
-          if (regexResult != null) {
-            const groupNode = this.m_WrappedSearchResult.find((o) => {
-              return o.Id === regexResult![1];
-            });
-            if (groupNode != null) {
-              mathNode = await this.createBinaryTree(groupNode, parentMathNode);
-            } else {
-              const customDefinedComplexServiceNodeProvider = new CustomDefinedComplexServiceNodeProvider();
-              const definedNode = await customDefinedComplexServiceNodeProvider.GetCustomDefinedComplexServiceNode(regexResult[1]);
-              if (definedNode != null) {
-                mathNode = definedNode;
-              }
-            }
-            return resolve(mathNode);
-          }
-        }
-
+    if (binaryNode.IsGrouping != null && binaryNode.IsGrouping) {
+      mathNode = await new MathNodeTreeFormuletor().convertMathExpressionToTree(binaryNode.Data, parentMathNode);
+    } else {
+      if (binaryNode.Operand != null) {
         const mathNodeCreatorProps: Partial<IMathNodeCreatorProps> = {
-          Id: mathNodeId,
-          EnumMathNodeType: EnumMathNodeType.Data,
+          Id: binaryNode.Id,
+          EnumMathNodeType: EnumMathNodeType.Operand,
+          EnumOperandType: binaryNode.Operand.EnumOperandType,
           ParentNode: parentMathNode,
-          Data: data,
-          ComplexMathExpression: typeofData === "string" ? data : data.toString(),
-          IsCustomNode: false,
-          Description: description,
+          Data: binaryNode.Data,
+          ComplexMathExpression: binaryNode.Data,
+          SimpleMathExpression: binaryNode.Data,
+          IsCustomNode: binaryNode.IsCustomNode,
+          Description: binaryNode.Description,
         };
-        mathNode = await MathNodeOptions.CreateMathNode(mathNodeCreatorProps);
-        return resolve(mathNode);
-      } catch (error) {
-        return reject(error);
+        mathNode = await MathNodeOptions.CreateMathNode(mathNodeCreatorProps)!;
+
+        if (mathNode != null) {
+          for (let index = 0; index < binaryNode.ParDatas!.length; index++) {
+            const parNode = await this.nodeDataToMathNode(undefined, binaryNode.ParDatas![index], undefined, mathNode);
+            mathNode.OperandParameters!.add(parNode!);
+          }
+        }
+      } else {
+        mathNode = await this.nodeDataToMathNode(binaryNode.Id, binaryNode.Data, undefined, parentMathNode);
       }
-    });
+    }
+
+    return mathNode;
+  }
+  private async nodeDataToMathNode (mathNodeId: string | undefined, data: any, description?: string, parentMathNode?: IMathNode) {
+    let mathNode: IMathNode | undefined;
+    const typeofData = typeof data;
+
+    if (typeofData === "string") {
+      const regex = /^«(\w+)»$/gu;
+      const regexResult = regex.exec(data);
+
+      if (regexResult != null) {
+        const groupNode = this.m_WrappedSearchResult.find((o) => {
+          return o.Id === regexResult![1];
+        });
+        if (groupNode != null) {
+          mathNode = await this.createBinaryTree(groupNode, parentMathNode);
+        } else {
+          const customDefinedComplexServiceNodeProvider = new CustomDefinedComplexServiceNodeProvider();
+          const definedNode = await customDefinedComplexServiceNodeProvider.GetCustomDefinedComplexServiceNode(regexResult[1]);
+          if (definedNode != null) {
+            mathNode = definedNode;
+          }
+        }
+        return mathNode;
+      }
+    }
+
+    const mathNodeCreatorProps: Partial<IMathNodeCreatorProps> = {
+      Id: mathNodeId,
+      EnumMathNodeType: EnumMathNodeType.Data,
+      ParentNode: parentMathNode,
+      Data: data,
+      ComplexMathExpression: typeofData === "string" ? data : data.toString(),
+      SimpleMathExpression: typeofData === "string" ? data : data.toString(),
+      IsCustomNode: false,
+      Description: description,
+    };
+    mathNode = await MathNodeOptions.CreateMathNode(mathNodeCreatorProps);
+    return mathNode;
   }
   /** Convert to general tree. */
   public ConvertToGeneralTree (mathNodeRoot: IMathNode) {
@@ -301,40 +267,22 @@ export class MathNodeTreeFormuletor {
   private getComplexMathNodeExpresstion (mathNode: IMathNode): string {
     let complexMathExpression = mathNode.ComplexMathExpression!;
     if (mathNode.EnumMathNodeType === EnumMathNodeType.Operand) {
-      if (mathNode.Operand!.ThereIsLeftParameter && mathNode.Operand!.ThereIsRighParameter) {
-        let leftParComplexMathExpression: string;
-        if (mathNode.OperandParameters![0].IsCustomNode === true) {
-          leftParComplexMathExpression = `«${mathNode.OperandParameters![0].Id}»`;
+      complexMathExpression = "";
+      for (let index = 0; index < mathNode.Operand!.KeysForComplexConversion!.length; index++) {
+        const keyForComplexExpression = mathNode.Operand!.KeysForComplexConversion![index];
+        if (typeof keyForComplexExpression === "string") {
+          complexMathExpression += keyForComplexExpression;
         } else {
-          leftParComplexMathExpression = this.getComplexMathNodeExpresstion(mathNode.OperandParameters![0]);
+          let parComplexMathExpression: string;
+          if (mathNode.OperandParameters![keyForComplexExpression].IsCustomNode === true) {
+            parComplexMathExpression = `«${mathNode.OperandParameters![keyForComplexExpression].Id}»`;
+          } else {
+            parComplexMathExpression = this.getComplexMathNodeExpresstion(mathNode.OperandParameters![keyForComplexExpression]);
+          }
+          complexMathExpression += parComplexMathExpression;
         }
-        let rightParComplexMathExpression: string;
-        if (mathNode.OperandParameters![1].IsCustomNode === true) {
-          rightParComplexMathExpression = `«${mathNode.OperandParameters![1].Id}»`;
-        } else {
-          rightParComplexMathExpression = this.getComplexMathNodeExpresstion(mathNode.OperandParameters![1]);
-        }
-        complexMathExpression = `${leftParComplexMathExpression} ${mathNode.Operand!.Key} ${rightParComplexMathExpression}`;
-        complexMathExpression = this.groupComplextMathExpression(complexMathExpression, mathNode, mathNode.ParentNode);
-      } else if (mathNode.Operand!.ThereIsLeftParameter) {
-        let leftParComplexMathExpression: string;
-        if (mathNode.OperandParameters![0].IsCustomNode === true) {
-          leftParComplexMathExpression = `«${mathNode.OperandParameters![0].Id}»`;
-        } else {
-          leftParComplexMathExpression = this.getComplexMathNodeExpresstion(mathNode.OperandParameters![0]);
-        }
-        complexMathExpression = `${leftParComplexMathExpression}${mathNode.Operand!.Key}`;
-        complexMathExpression = this.groupComplextMathExpression(complexMathExpression, mathNode, mathNode.ParentNode);
-      } else if (mathNode.Operand!.ThereIsRighParameter) {
-        let rightParComplexMathExpression: string;
-        if (mathNode.OperandParameters![0].IsCustomNode === true) {
-          rightParComplexMathExpression = `«${mathNode.OperandParameters![0].Id}»`;
-        } else {
-          rightParComplexMathExpression = this.getComplexMathNodeExpresstion(mathNode.OperandParameters![0]);
-        }
-        complexMathExpression = `${mathNode.Operand!.Key} ${rightParComplexMathExpression}`;
-        complexMathExpression = this.groupComplextMathExpression(complexMathExpression, mathNode, mathNode.ParentNode);
       }
+      complexMathExpression = this.groupComplextMathExpression(complexMathExpression, mathNode, mathNode.ParentNode);
     }
     return complexMathExpression;
   }
@@ -342,7 +290,7 @@ export class MathNodeTreeFormuletor {
     let newExpression: string;
     if (node.EnumMathNodeType === EnumMathNodeType.Operand &&
         parentNode != null && parentNode.EnumMathNodeType === EnumMathNodeType.Operand &&
-        parentNode.Operand!.Precedence > node.Operand!.Precedence) {
+        parentNode.Operand!.Precedence < node.Operand!.Precedence) {
       newExpression = `(${currentExpression})`;
     } else {
       newExpression = currentExpression;

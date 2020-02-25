@@ -7,6 +7,7 @@ import { IMathNode } from "../interfaces/IMathNode";
 import { IMathNodeCreatorProps } from "../interfaces/IMathNodeCreatorProps";
 import { IOperandDefinition } from "../interfaces/IOperandDefinition";
 import { CurrentOperandDefinitionsProvider } from "./CurrentOperandDefinitionsProvider";
+import { GuidProvider } from "./GuidProvider";
 
 interface INodeDataForAppSaving {
   Guid?: string;
@@ -41,14 +42,17 @@ export class CustomDefinedComplexServiceNodeProvider {
     async GetAllCustomDefinedComplexServiceNodes (): Promise<IMathNode[] | undefined> {
       const responseForParent = await axios.get(`http://localhost:8080/DefinedComplexMathNodes`);
       const readedParentNodes: INodeDataForAppReading[] = responseForParent.data;
-      readedParentNodes.forEach(async (readedParentNode) => {
+      for (let index = 0; index < readedParentNodes.length; index++) {
+        const readedParentNode = readedParentNodes[index];
         await this.readChildrenNodes(readedParentNode);
-      });
+      }
+      
       const convertedNodes: IMathNode[] = [];
-      readedParentNodes.forEach(async (readedParentNode) => {
+      for (let index = 0; index < readedParentNodes.length; index++) {
+        const readedParentNode = readedParentNodes[index];
         const convertedNode = await this.convertNodesForReading(readedParentNode);
         convertedNodes.add(convertedNode!);
-      });
+      }
       console.log(convertedNodes);
       return convertedNodes;
     }
@@ -61,7 +65,7 @@ export class CustomDefinedComplexServiceNodeProvider {
     async SaveCustomDefinedCompexServiceNodes (node: IMathNode, parentNode?: IMathNode): Promise<void> {
       const nodeDataToSave = this.convertNodesForSaving(node, parentNode);
       const response = await axios.post("http://localhost:8080/DefinedComplexMathNodes", nodeDataToSave);
-      console.log(response);
+      return response.data;
     }
     private convertNodesForSaving(node: IMathNode, parentNode?: IMathNode) {
       const dataToSave: INodeDataForAppSaving = {
@@ -73,7 +77,7 @@ export class CustomDefinedComplexServiceNodeProvider {
         IsCustomNode: node.IsCustomNode,
         Description: node.Description,
         ComplexMathExpression: node.ComplexMathExpression,
-        Data: node.ComplexMathExpression,
+        Data: node.SimpleMathExpression,
       };
       if (node.OperandParameters != null && node.OperandParameters.length > 0) {
         dataToSave.OperandParameters = [];
@@ -101,14 +105,16 @@ export class CustomDefinedComplexServiceNodeProvider {
         IsCustomNode: appNode.IsCustomNode,
         CustomDataService: customDataService,
         ComplexMathExpression: appNode.ComplexMathExpression,
+        SimpleMathExpression: appNode.Data,
       };
       const createdNode = await MathNodeOptions.CreateMathNode(mathNodeCreatorProps);
       if (appNode.OperandParameters != null && appNode.OperandParameters.count > 0) {
         createdNode!.OperandParameters = [];
-        appNode.OperandParameters.forEach(async (operandParameter) => {
-          const createdChild = await this.convertNodesForReading(operandParameter, createdNode, customDataService);
+        for (let index = 0; index < appNode.OperandParameters.length; index++) {
+          const operandParameter = appNode.OperandParameters[index];
+          const createdChild = await this.convertNodesForReading({ ...operandParameter, Guid: GuidProvider.GetGuid(), IsCustomNode: false, }, createdNode, customDataService);
           createdNode!.OperandParameters!.add(createdChild!);
-        });
+        }
       }
       return createdNode;
     }
@@ -117,10 +123,11 @@ export class CustomDefinedComplexServiceNodeProvider {
       const readedChildrenNodes = responseForChildren.data as INodeDataForAppReading[];
       if (readedChildrenNodes != null && readedChildrenNodes.length > 0) {
         appNode.OperandParameters = [];
-        readedChildrenNodes.forEach(async (readedChildNode) => {
+        for (let index = 0; index < readedChildrenNodes.length; index++) {
+          const readedChildNode = readedChildrenNodes[index];
           appNode.OperandParameters!.add(readedChildNode);
-          await this.readChildrenNodes(readedChildNode)
-        });
+          await this.readChildrenNodes(readedChildNode);
+        }
       }
     }
     
