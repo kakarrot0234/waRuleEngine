@@ -146,7 +146,6 @@ export function CurrentDefinedNodes (props: ICurrentDefinedNodesProps) {
   function onSelectionChangedCurrentMathNodes (selectionChangedEvent: SelectionChangedEvent) {
     const selectedNodes: IMathNode[] = selectionChangedEvent.api.getSelectedRows();
     if (selectedNodes != null && selectedNodes.count > 0) {
-      console.log(selectedNodes);
       setState((previousState) => {
         return { ...previousState, SelectedMathNode: selectedNodes[0], EditingMathNode: {
           ComplexMathExpression: selectedNodes[0].ComplexMathExpression != null ? selectedNodes[0].ComplexMathExpression : "",

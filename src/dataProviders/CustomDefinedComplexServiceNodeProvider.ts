@@ -53,7 +53,6 @@ export class CustomDefinedComplexServiceNodeProvider {
         const convertedNode = await this.convertNodesForReading(readedParentNode);
         convertedNodes.add(convertedNode!);
       }
-      console.log(convertedNodes);
       return convertedNodes;
     }
     async GetCustomDefinedComplexServiceNode (nodeId: string, customDataService?: ICustomDataService): Promise<IMathNode | undefined> {

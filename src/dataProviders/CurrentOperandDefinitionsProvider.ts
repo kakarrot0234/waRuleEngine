@@ -42,7 +42,8 @@ export class CurrentOperandDefinitionsProvider {
         Description: o.Description,
         OperandRegexStr: o.OperandRegexStr,
         OperandParRegexStr: o.OperandParRegexStr,
-        EnumOperandType: o.OperandType != null ? EnumOperandType[<keyof typeof EnumOperandType>o.OperandType.EnumKey] : undefined
+        EnumOperandType: o.OperandType != null ? EnumOperandType[<keyof typeof EnumOperandType>o.OperandType.EnumKey] : undefined,
+        KeysForComplexConversion: o.KeysForComplexConversion,
       };
       return operandDef;
     });
