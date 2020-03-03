@@ -40,26 +40,29 @@ export class CustomDefinedComplexServiceNodeProvider {
 
     /** Gets all nodes. Use just for test. */
     async GetAllCustomDefinedComplexServiceNodes (): Promise<IMathNode[] | undefined> {
+      const convertedNodes: IMathNode[] = [];
       const responseForParent = await axios.get(`http://localhost:8080/DefinedComplexMathNodes`);
       const readedParentNodes: INodeDataForAppReading[] = responseForParent.data;
-      for (let index = 0; index < readedParentNodes.length; index++) {
-        const readedParentNode = readedParentNodes[index];
-        await this.readChildrenNodes(readedParentNode);
-      }
-      
-      const convertedNodes: IMathNode[] = [];
-      for (let index = 0; index < readedParentNodes.length; index++) {
-        const readedParentNode = readedParentNodes[index];
-        const convertedNode = await this.convertNodesForReading(readedParentNode);
-        convertedNodes.add(convertedNode!);
+      if (readedParentNodes != null) {
+        for (let index = 0; index < readedParentNodes.length; index++) {
+          const readedParentNode = readedParentNodes[index];
+          await this.readChildrenNodes(readedParentNode);
+        }
+        for (let index = 0; index < readedParentNodes.length; index++) {
+          const readedParentNode = readedParentNodes[index];
+          const convertedNode = await this.convertNodesForReading(readedParentNode);
+          convertedNodes.add(convertedNode!);
+        }
       }
       return convertedNodes;
     }
     async GetCustomDefinedComplexServiceNode (nodeId: string, customDataService?: ICustomDataService): Promise<IMathNode | undefined> {
       const responseForParent = await axios.get(`http://localhost:8080/DefinedComplexMathNodes/ById/${nodeId}`);
       const readedParentNode: INodeDataForAppReading = responseForParent.data;
-      await this.readChildrenNodes(readedParentNode);
-      return this.convertNodesForReading(readedParentNode);
+      if (readedParentNode != null) {
+        await this.readChildrenNodes(readedParentNode);
+        return this.convertNodesForReading(readedParentNode);
+      }
     }
     async SaveCustomDefinedCompexServiceNodes (node: IMathNode, parentNode?: IMathNode): Promise<void> {
       const nodeDataToSave = this.convertNodesForSaving(node, parentNode);
